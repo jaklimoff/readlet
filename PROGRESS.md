@@ -49,8 +49,8 @@ tests from the brief pass in all three desktop browsers and in Pixel 7 / iPhone 
 - [x] Decision notes 0001–0004
 - [x] LICENSE (MIT) and NOTICE (pdf.js Apache 2.0) at root and in each package
 - [x] Changesets config
-- [~] GitHub Actions CI (typecheck, lint, unit, build, size, e2e on all five projects).
-      Runs on GitHub: github.com/jaklimoff/readlet.
+- [x] GitHub Actions CI (typecheck, lint, unit, build, size, e2e on all five projects). Green on
+      GitHub: https://github.com/jaklimoff/readlet/actions
 
 ## M1 — Core model (pure, Node-testable, `core/src/model`)
 
@@ -120,6 +120,13 @@ tests from the brief pass in all three desktop browsers and in Pixel 7 / iPhone 
       cannot emulate the OS selection UI).
 
 ## Log
+
+- 2026-10-03 — Published the public repo https://github.com/jaklimoff/readlet (history checked for
+  secrets and local paths first). First CI runs found three Linux-only problems, all fixed: Vitest
+  did not use the `readlet-source` condition in its SSR environment (it needed a build first); the
+  zoom test dragged outside a phone screen; and Firefox with the runner fonts snapped a drag end just
+  inside a narrow "." to before it (end points now aim into the next character). CI retries once
+  and reports flaky tests.
 
 - 2026-10-03 — TSDoc audit with a CI check; progress event test (in-memory sources now report
   exactly one complete event); resize test; axe accessibility test (no violations); pdf.js logs
