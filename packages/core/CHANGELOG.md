@@ -1,5 +1,11 @@
 # @readletjs/core
 
+## 0.1.1
+
+### Patch Changes
+
+- 6043563: Add npm keywords so that the packages show up in npm search.
+
 ## 0.1.0
 
 ### Minor Changes
