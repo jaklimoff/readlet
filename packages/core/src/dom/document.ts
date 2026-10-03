@@ -31,8 +31,8 @@ import { canvasMeasurer } from "./measure";
 export interface DocumentEvents {
   /** A background operation (page or text fetch) failed. */
   error: ReadletError;
-  /** The text of a page became available in the cache. */
-  text: number;
+  /** The text of a page loaded into the cache. The payload is the page index. */
+  textload: number;
   /**
    * The real size of a page arrived and replaced an estimate (lazy page sizes). The payload is
    * the new {@link PageInfo}.
@@ -86,7 +86,7 @@ export class ReadletDocument implements Subscribable<DocumentEvents> {
   #outline: Promise<OutlineItem[]> | null = null;
   #destroyed = false;
 
-  /** @internal Use {@link loadDocument}. */
+  /** Use {@link loadDocument}. */
   constructor(backend: BackendDocument, pages: readonly PageInfo[]) {
     this.#backend = backend;
     this.#pages = [...pages];
@@ -182,7 +182,7 @@ export class ReadletDocument implements Subscribable<DocumentEvents> {
         const model: PageTextModel = { items, normalised: normalisePageText(items) };
         if (!this.#destroyed) {
           this.#text.set(index, model);
-          this.#emitter.emit("text", index);
+          this.#emitter.emit("textload", index);
         }
         return model;
       })().finally(() => this.#textPending.delete(index));
@@ -375,7 +375,7 @@ export async function loadDocument(
         index === first ? known : { ...known, index, estimated: true },
       );
     }
-    if (signal?.aborted) throw new ReadletError("network", "Load was aborted.");
+    if (signal?.aborted) throw new ReadletError("aborted", "Load was aborted.");
     return new ReadletDocument(backendDoc, pages);
   } catch (error) {
     await backendDoc.destroy().catch(() => {});

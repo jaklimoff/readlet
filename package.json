@@ -10,6 +10,7 @@
     "build": "pnpm -r --filter './packages/*' build",
     "release": "pnpm build && node scripts/release.mjs",
     "typecheck": "pnpm -r typecheck",
+    "typecheck:dist": "tsc -p tests/types/tsconfig.json",
     "lint": "biome check .",
     "format": "biome format --write .",
     "test": "vitest run",

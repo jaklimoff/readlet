@@ -7,6 +7,7 @@
  * - `render-cancelled`: a newer render or a release replaced this render.
  * - `worker-failed`: the background worker could not start or crashed.
  * - `destroyed`: the object was used after `destroy()`.
+ * - `aborted`: the caller aborted the load with its `AbortSignal`.
  * - `unknown`: anything else. The original error is in `cause`.
  *
  * @example
@@ -21,6 +22,7 @@ export type ReadletErrorCode =
   | "render-cancelled"
   | "worker-failed"
   | "destroyed"
+  | "aborted"
   | "unknown";
 
 /**

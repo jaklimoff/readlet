@@ -63,6 +63,7 @@ export class PageView {
   #settings: PageViewSettings;
   #onTextLayer: (view: PageView, layer: TextLayer | null) => void;
 
+  /** The viewport creates the page views; get them with `viewport.getPageView(index)`. */
   constructor(
     doc: ReadletDocument,
     info: PageInfo,
@@ -99,7 +100,7 @@ export class PageView {
     return this.#doc.getPageInfo(this.index);
   }
 
-  /** The text layer, when built. */
+  /** @internal The text layer, when built. */
   get textLayer(): TextLayer | null {
     return this.#textLayer;
   }
@@ -111,7 +112,7 @@ export class PageView {
     return { width: s.width * scale * PT_TO_CSS, height: s.height * scale * PT_TO_CSS };
   }
 
-  /** Updates sizes for new settings. Does not render; call {@link PageView.render}. */
+  /** @internal Updates sizes for new settings. Does not render; call `render`. */
   applySettings(settings: PageViewSettings): void {
     this.#settings = settings;
     const { scale, rotation } = settings;
@@ -141,7 +142,7 @@ export class PageView {
     }
   }
 
-  /** `true` when the canvas matches the current scale and rotation. */
+  /** @internal `true` when the canvas matches the current scale and rotation. */
   get upToDate(): boolean {
     return (
       this.#state === "rendered" &&
@@ -150,7 +151,7 @@ export class PageView {
     );
   }
 
-  /** `true` when {@link PageView.render} has work to do (canvas or layers missing). */
+  /** @internal `true` when `render` has work to do (canvas or layers missing). */
   get needsRender(): boolean {
     if (!this.upToDate) return true;
     if (this.#layersFailed) return false;
@@ -160,8 +161,8 @@ export class PageView {
   }
 
   /**
-   * Renders the canvas (and builds the text and link layers once). Resolves when done. A newer
-   * call or {@link PageView.release} cancels it; a cancelled render resolves without painting.
+   * @internal Renders the canvas (and builds the text and link layers once). Resolves when done.
+   * A newer call or `release` cancels it; a cancelled render resolves without painting.
    */
   render(): Promise<void> {
     if (this.upToDate) return this.#ensureLayers();
@@ -281,8 +282,8 @@ export class PageView {
   }
 
   /**
-   * Frees the canvas. With `keepText`, the text layer stays (so a DOM selection that uses it
-   * survives); otherwise the text and link layers are removed too.
+   * @internal Frees the canvas. With `keepText`, the text layer stays (so a DOM selection that
+   * uses it survives); otherwise the text and link layers are removed too.
    */
   release(keepText = false): void {
     this.#generation++;
@@ -310,7 +311,7 @@ export class PageView {
     this.#linkLayer = null;
   }
 
-  /** Releases everything and detaches the slot. */
+  /** @internal Releases everything and detaches the slot. */
   destroy(): void {
     this.release(false);
     this.element.remove();

@@ -7,7 +7,6 @@ export {
   loadDocument,
   ReadletDocument,
 } from "./dom/document";
-export { canvasMeasurer } from "./dom/measure";
 export { PageView, type PageViewState } from "./dom/page-view";
 export {
   createSelectionManager,
@@ -16,7 +15,7 @@ export {
   type SelectionManagerOptions,
 } from "./dom/selection";
 export { baseCss, injectStyles } from "./dom/styles";
-export { CLASS as classNames, TextLayer } from "./dom/text-layer";
+export { CLASS as classNames } from "./dom/text-layer";
 export {
   createViewport,
   type GoToPageOptions,
@@ -34,7 +33,7 @@ export type {
   Matrix,
   TextItem,
 } from "./model/backend";
-export { Emitter, type Listener, type Subscribable } from "./model/emitter";
+export type { Listener, Subscribable } from "./model/emitter";
 export {
   isReadletError,
   ReadletError,
@@ -42,23 +41,10 @@ export {
   toReadletError,
 } from "./model/errors";
 export {
-  type ColumnLayout,
-  columnLayout,
-  effectiveDpr,
-  mostVisiblePage,
-  PT_TO_CSS,
-  resolveScale,
-  rotateSize,
-  type Size,
-  visiblePages as visiblePagesInLayout,
-} from "./model/layout";
-export { type ItemGeometry, itemGeometry } from "./model/text-geometry";
-export {
   NORMALISATION_VERSION,
   type NormalisedItem,
   type NormalisedPageText,
   type NormalisedSeparator,
-  normaliseItemString,
   normalisePageText,
 } from "./model/text-normalise";
 export {
@@ -71,12 +57,7 @@ export {
   rangesEqual,
   rangeToText,
 } from "./model/text-range";
-export {
-  type PageTextModel,
-  pageRangeRects,
-  rangeToRects,
-  type TextMeasurer,
-} from "./model/text-rects";
+export { type PageTextModel, rangeToRects, type TextMeasurer } from "./model/text-rects";
 export type {
   DocumentSource,
   Highlight,

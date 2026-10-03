@@ -1,0 +1,24 @@
+{
+  // Compiles consumer.ts against the BUILT declaration files (packages/*/dist), as an app that
+  // installed the packages from npm would. Run after `pnpm build`: `pnpm typecheck:dist`.
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": false,
+    "lib": ["es2022", "dom", "dom.iterable"],
+    "types": [],
+    "paths": {
+      "@readletjs/core": ["../../packages/core/dist/index.d.ts"],
+      "@readletjs/pdf": ["../../packages/pdf/dist/index.d.ts"],
+      "@readletjs/react": ["../../packages/react/dist/index.d.ts"],
+      // React types come from the react package's dev dependencies (the root has no React).
+      "react": ["../../packages/react/node_modules/@types/react/index.d.ts"],
+      "react/jsx-runtime": ["../../packages/react/node_modules/@types/react/jsx-runtime.d.ts"]
+    }
+  },
+  "files": ["consumer.tsx"]
+}

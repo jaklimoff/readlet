@@ -46,7 +46,7 @@ declare global {
 const initialPage = params.has("page") ? Number(params.get("page")) : undefined;
 
 export function App() {
-  const ref = useRef<ViewerHandle>(null);
+  const ref = useRef<ViewerHandle | null>(null);
   const [src, setSrc] = useState<string | File>(params.get("file") ?? FIXTURES[0] ?? "");
   const [mode, setMode] = useState<ViewMode>((params.get("mode") as ViewMode) ?? "scroll");
   const [zoom, setZoom] = useState<ZoomMode>(() => {

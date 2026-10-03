@@ -62,6 +62,10 @@ is exclusive. Ranges stay the same across zoom, resize, rotation and re-render.
 - `selection.rangeToRects(range)`: rectangles in page coordinates (points, top-left origin), to
   draw highlights or remote users' selections.
 
+When you store ranges, store `NORMALISATION_VERSION` (from `@readletjs/core`) next to them. The
+offsets depend on how Readlet builds the page text; a change to that algorithm increases the
+version and is a breaking change. `normalisePageText` builds the same page text on a server.
+
 ## Large files and S3: load only the pages you show
 
 For a URL source, Readlet downloads only the bytes that the shown pages need. It uses HTTP Range
@@ -97,6 +101,14 @@ bucket on another origin, set CORS rules like this:
   render. By default, pages that have not loaded yet use the size of the first loaded page, and
   the viewer keeps your reading position when a real size arrives. See
   [decision 0006](docs/decisions/0006-partial-loading-and-lazy-page-sizes.md).
+
+## Not yet supported
+
+- Vertical (top-to-bottom) writing, as in some Japanese books: the code handles it, but no test
+  covers it yet.
+- Password-protected PDFs (planned for 0.2; loading one gives the error code
+  `password-required`).
+- Annotation editing, forms and signatures (out of scope).
 
 ## Packages
 

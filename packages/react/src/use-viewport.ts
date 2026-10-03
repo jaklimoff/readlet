@@ -1,5 +1,6 @@
 import {
   createViewport,
+  type GoToPageOptions,
   type PageInfo,
   type PageView,
   type ReadletDocument,
@@ -51,7 +52,7 @@ export interface ViewportState {
   pageCount: number;
   scale: number;
   visiblePages: PageHandle[];
-  goToPage: (index: number, options?: { top?: number | null; smooth?: boolean }) => void;
+  goToPage: (index: number, options?: GoToPageOptions) => void;
   nextPage: () => void;
   previousPage: () => void;
 }

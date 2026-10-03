@@ -51,7 +51,7 @@ export function useSelection(
     if (!viewport || viewport.destroyed) return;
     const m = createSelectionManager(viewport, { handleCopy });
     const off = m.on("change", setRangeState);
-    const offText = viewport.document.on("text", () => setTextVersion((v) => v + 1));
+    const offText = viewport.document.on("textload", () => setTextVersion((v) => v + 1));
     setManager(m);
     return () => {
       off();

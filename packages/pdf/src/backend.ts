@@ -497,7 +497,7 @@ export function createPdfBackend(options: PdfBackendOptions = {}): DocumentBacke
     name: "pdf",
     async load(source, loadOptions = {}) {
       const { onProgress, signal } = loadOptions;
-      if (signal?.aborted) throw new ReadletError("network", "Load was aborted.");
+      if (signal?.aborted) throw new ReadletError("aborted", "Load was aborted.");
       const pdfjs = await loadPdfJs();
       let params: { url: string } | { data: Uint8Array } | { range: PDFDataRangeTransport } =
         await sourceToParams(source, onProgress);
@@ -525,6 +525,8 @@ export function createPdfBackend(options: PdfBackendOptions = {}): DocumentBacke
       } catch (error) {
         // acquire() undoes its own count when it fails; release only after a failed probe.
         if (!(error instanceof ReadletError && error.code === "worker-failed")) host.release();
+        if (signal?.aborted)
+          throw new ReadletError("aborted", "Load was aborted.", { cause: error });
         throw mapPdfError(error);
       }
       if (probing && "url" in params) {
@@ -576,7 +578,7 @@ export function createPdfBackend(options: PdfBackendOptions = {}): DocumentBacke
         void task?.destroy();
         host.release();
         if (signal?.aborted)
-          throw new ReadletError("network", "Load was aborted.", { cause: error });
+          throw new ReadletError("aborted", "Load was aborted.", { cause: error });
         throw mapPdfError(error);
       } finally {
         signal?.removeEventListener("abort", onAbort);

@@ -94,7 +94,12 @@ export interface ViewportEvents {
  * ```
  */
 export interface GoToPageOptions {
-  /** Vertical position inside the page, in page coordinates. */
+  /**
+   * Vertical position inside the page, in page coordinates (the `top` of links and outline
+   * items). Used at a user rotation of 0° and 180°. At 90° and 270° a horizontal line of the page
+   * runs vertically on screen, so no scroll position puts it at the top: the viewer goes to the
+   * top of the page.
+   */
   top?: number | null;
   /** Use smooth scrolling. Default `false`. */
   smooth?: boolean;
@@ -148,7 +153,7 @@ export class Viewport implements Subscribable<ViewportEvents> {
   #restoreContainerStyle: (() => void) | null = null;
   #cleanups: Array<() => void> = [];
 
-  /** @internal Use {@link createViewport}. */
+  /** Use {@link createViewport}. */
   constructor(doc: ReadletDocument, options: ViewportOptions) {
     this.document = doc;
     this.container = options.container;
@@ -245,7 +250,7 @@ export class Viewport implements Subscribable<ViewportEvents> {
     return this.#views[index];
   }
 
-  /** The text layers that exist now, in page order. */
+  /** @internal The text layers that exist now, in page order. */
   getTextLayers(): TextLayer[] {
     const out: TextLayer[] = [];
     for (const v of this.#views) if (v.textLayer) out.push(v.textLayer);
@@ -337,13 +342,9 @@ export class Viewport implements Subscribable<ViewportEvents> {
   }
 
   /**
-   * Keeps the text layers of these pages when the pages leave the render window. The selection
-   * manager pins the pages of the current selection, so the DOM selection survives scrolling.
-   *
-   * @example
-   * ```ts
-   * viewport.setPinnedPages([2, 3]);
-   * ```
+   * @internal Keeps the text layers of these pages when the pages leave the render window. The
+   * selection manager pins the pages of the current selection, so the DOM selection survives
+   * scrolling. It replaces the whole set, so only the selection manager may call it.
    */
   setPinnedPages(pages: Iterable<number>): void {
     const next = new Set(pages);

@@ -52,8 +52,6 @@ the next pages early. Use `prefetch: true` when users jump around a lot in files
 - Chrome's "minimum font size" setting can enlarge very small invisible text. pdf.js has a
   workaround; Readlet does not yet. The setting could not be reproduced in Playwright's Chromium
   (the profile preference has no effect), so no change was made without a test.
-- React 18 is a declared peer but only React 19 is tested.
-- `goToPage(index, { top })` ignores `top` when the user rotation is 90° or 270°.
 - On the slow-CPU profile, the vector file gives main-thread tasks of up to ~160 ms (×4, so
   ~40 ms at full speed). pdf.js draws on the main thread; it yields every 15 ms, but one drawing
   operation can take longer. Not Readlet code; rendering in a worker (OffscreenCanvas) could fix
@@ -135,7 +133,11 @@ the next pages early. Use `prefetch: true` when users jump around a lot in files
 - [x] Release workflow: Changesets version PR, `scripts/release.mjs`, Trusted Publishing,
       `RELEASING.md`; package READMEs; clean published `exports`
 - [ ] First publish (local, by the owner) and Trusted Publishing setup — after the API review
-- [ ] API review before the first publish
+- [x] API review before the first publish (decision 0008): internals removed from the exports
+      and stripped from the published types; `aborted` error code; `textload` event; core is a
+      peer of the React package; React re-exports its types; consumer type check on the built
+      `.d.ts` in CI
+- [x] React 18: CI job `react18` runs typecheck and the Chromium tests with React 18.3
 
 - [x] Partial loading (decision 0006): HTTP Range requests without background prefetch by
       default, lazy page sizes, `initialPage` loads first; tested with an S3-like range server
@@ -150,6 +152,10 @@ the next pages early. Use `prefetch: true` when users jump around a lot in files
       cannot emulate the OS selection UI).
 
 ## Log
+
+- 2026-10-03 — API review (decision 0008) and React 18 job. All desktop tests pass with React
+  18.3.1. `goToPage({ top })` at 90°/270° is correct as it is (documented). Vertical text is
+  listed as not tested in the README. One "initial release" changeset for 0.1.0.
 
 - 2026-10-03 — Created the npm organisation `readletjs` and renamed the packages (decision 0007).
   Release workflow with Changesets and npm Trusted Publishing; dry-run release in CI. The pdf

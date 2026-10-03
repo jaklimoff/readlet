@@ -61,7 +61,7 @@ export class SelectionManager implements Subscribable<SelectionEvents> {
   #captured: TextRange | null = null;
   #cleanups: Array<() => void> = [];
 
-  /** @internal Use {@link createSelectionManager}. */
+  /** Use {@link createSelectionManager}. */
   constructor(viewport: Viewport, options: SelectionManagerOptions = {}) {
     this.viewport = viewport;
     const doc = viewport.container.ownerDocument;

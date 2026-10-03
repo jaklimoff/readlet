@@ -8,7 +8,8 @@ export default defineConfig({
   entry: ["src/index.ts"],
   format: ["esm", "cjs"],
   // tsup sets the deprecated `baseUrl` option for the d.ts build; TypeScript 6 warns about it.
-  dts: { compilerOptions: { ignoreDeprecations: "6.0" } },
+  // `stripInternal` keeps members marked `@internal` out of the published types.
+  dts: { compilerOptions: { ignoreDeprecations: "6.0", stripInternal: true } },
   splitting: true,
   sourcemap: true,
   clean: true,

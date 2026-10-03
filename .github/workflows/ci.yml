@@ -21,6 +21,7 @@ jobs:
       - run: pnpm tsdoc
       - run: pnpm test:coverage
       - run: pnpm build
+      - run: pnpm typecheck:dist
       - run: pnpm size
       - run: node scripts/release.mjs --dry-run
       - run: node scripts/verify-fixtures.mjs
@@ -69,3 +70,23 @@ jobs:
         with:
           name: benchmark
           path: test-results/benchmark.json
+
+  # @readletjs/react declares React 18 and 19 as peers; the repo develops on 19. This job swaps in
+  # React 18 for the run (the lockfile change is not committed) and runs the Chromium tests.
+  react18:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: >-
+          pnpm --filter vite-react-example --filter @readletjs/react add -D
+          react@^18 react-dom@^18 @types/react@^18 @types/react-dom@^18
+      - run: node -p "'React ' + require('./examples/vite-react/node_modules/react/package.json').version"
+      - run: pnpm typecheck
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e --project=chromium

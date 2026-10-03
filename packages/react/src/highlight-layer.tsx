@@ -41,7 +41,7 @@ export function HighlightLayer({ highlights, color, className }: HighlightLayerP
 
   useEffect(() => {
     if (document.getCachedTextModel(page.index)) return;
-    const off = document.on("text", (index) => {
+    const off = document.on("textload", (index) => {
       if (index === page.index) setVersion((v) => v + 1);
     });
     void document.getTextModel(page.index).catch(() => {});

@@ -1,6 +1,7 @@
 import type {
   DocumentBackend,
   DocumentSource,
+  GoToPageOptions,
   Highlight,
   LoadProgress,
   PageLink,
@@ -83,7 +84,7 @@ export interface ViewerHandle {
   document: ReadletDocument | null;
   viewport: Viewport | null;
   selection: SelectionManager | null;
-  goToPage: (index: number) => void;
+  goToPage: (index: number, options?: GoToPageOptions) => void;
 }
 
 function ViewerImpl(props: ViewerProps, ref: ForwardedRef<ViewerHandle>): ReactNode {
@@ -156,7 +157,7 @@ function ViewerImpl(props: ViewerProps, ref: ForwardedRef<ViewerHandle>): ReactN
       document: doc.document,
       viewport: vp.viewport,
       selection: selection.manager,
-      goToPage: (index: number) => vp.viewport?.goToPage(index),
+      goToPage: (index: number, options?: GoToPageOptions) => vp.viewport?.goToPage(index, options),
     }),
     [doc.document, vp.viewport, selection.manager],
   );

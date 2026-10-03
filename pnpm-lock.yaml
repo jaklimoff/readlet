@@ -247,11 +247,10 @@ importers:
         version: link:../core
 
   packages/react:
-    dependencies:
+    devDependencies:
       '@readletjs/core':
         specifier: workspace:^
         version: link:../core
-    devDependencies:
       '@types/react':
         specifier: ^19.0.0
         version: 19.3.0
