@@ -2,6 +2,18 @@
   "name": "@readletjs/pdf",
   "version": "0.1.0",
   "description": "PDF backend for Readlet, built on pdf.js.",
+  "keywords": [
+    "pdf",
+    "pdf-viewer",
+    "pdfjs",
+    "text-selection",
+    "text-layer",
+    "document-viewer",
+    "typescript",
+    "pdf.js",
+    "http-range",
+    "s3"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",

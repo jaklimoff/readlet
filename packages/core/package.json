@@ -2,6 +2,19 @@
   "name": "@readletjs/core",
   "version": "0.1.0",
   "description": "Framework-agnostic document rendering, text layer and selection for the browser.",
+  "keywords": [
+    "pdf",
+    "pdf-viewer",
+    "pdfjs",
+    "text-selection",
+    "text-layer",
+    "document-viewer",
+    "typescript",
+    "virtualization",
+    "annotations",
+    "highlights",
+    "headless"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",

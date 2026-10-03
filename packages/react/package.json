@@ -2,6 +2,19 @@
   "name": "@readletjs/react",
   "version": "0.1.0",
   "description": "React bindings for Readlet.",
+  "keywords": [
+    "pdf",
+    "pdf-viewer",
+    "pdfjs",
+    "text-selection",
+    "text-layer",
+    "document-viewer",
+    "typescript",
+    "react",
+    "react-pdf",
+    "react-component",
+    "hooks"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
