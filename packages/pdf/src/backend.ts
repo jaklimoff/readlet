@@ -78,6 +78,38 @@ function multiply(m1: readonly number[], m2: readonly number[]): Matrix {
   ];
 }
 
+/**
+ * Converts pdf.js text content into Readlet text items in page coordinates. `viewportTransform`
+ * is the transform of the page viewport at scale 1 (intrinsic rotation applied).
+ * @internal Exported for the normalisation snapshot tests.
+ */
+export function convertTextContent(
+  content: TextContent,
+  viewportTransform: readonly number[],
+): TextItem[] {
+  const out: TextItem[] = [];
+  for (const raw of content.items) {
+    if (!("str" in raw)) continue;
+    const item = raw as PdfTextItem;
+    const style = content.styles[item.fontName];
+    let ascent = 0.8;
+    if (style?.ascent) ascent = style.ascent;
+    else if (style?.descent) ascent = 1 + style.descent;
+    out.push({
+      str: item.str,
+      dir: item.dir === "rtl" ? "rtl" : item.dir === "ttb" ? "ttb" : "ltr",
+      transform: multiply(viewportTransform, item.transform as number[]),
+      width: item.width,
+      height: item.height,
+      hasEOL: item.hasEOL,
+      fontFamily: style?.fontFamily || "sans-serif",
+      ascent,
+      vertical: style?.vertical ?? false,
+    });
+  }
+  return out;
+}
+
 function toRotation(value: number): Rotation {
   const r = (((Math.round(value / 90) * 90) % 360) + 360) % 360;
   return r as Rotation;
@@ -239,28 +271,7 @@ class PdfPage implements BackendPage {
     } catch (error) {
       throw mapPdfError(error);
     }
-    const vt = this.#baseViewport.transform;
-    const out: TextItem[] = [];
-    for (const raw of content.items) {
-      if (!("str" in raw)) continue;
-      const item = raw as PdfTextItem;
-      const style = content.styles[item.fontName];
-      let ascent = 0.8;
-      if (style?.ascent) ascent = style.ascent;
-      else if (style?.descent) ascent = 1 + style.descent;
-      out.push({
-        str: item.str,
-        dir: item.dir === "rtl" ? "rtl" : item.dir === "ttb" ? "ttb" : "ltr",
-        transform: multiply(vt, item.transform as number[]),
-        width: item.width,
-        height: item.height,
-        hasEOL: item.hasEOL,
-        fontFamily: style?.fontFamily || "sans-serif",
-        ascent,
-        vertical: style?.vertical ?? false,
-      });
-    }
-    return out;
+    return convertTextContent(content, this.#baseViewport.transform);
   }
 
   async getLinks(): Promise<PageLink[]> {

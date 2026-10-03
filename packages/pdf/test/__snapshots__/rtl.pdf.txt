@@ -1,0 +1,5 @@
+Right-to-left sample
+The next lines contain Hebrew text. The first is Hebrew only; the second mixes Latin and Hebrew.
+הספר נמצא על השולחן
+Greeting: שלום
+End of the right-to-left sample.
