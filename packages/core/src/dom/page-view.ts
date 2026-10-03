@@ -221,6 +221,12 @@ export class PageView {
     }
   }
 
+  /** A network error can pass (the next render tries again); other errors are final. */
+  #layerFailed(error: unknown): void {
+    if (!(isReadletError(error) && error.code === "network")) this.#layersFailed = true;
+    this.#doc.reportError(error);
+  }
+
   async #ensureLayers(): Promise<void> {
     const { textLayer, links } = this.#settings;
     const generation = this.#generation;
@@ -233,8 +239,7 @@ export class PageView {
         this.#textLayer = layer;
         this.#onTextLayer(this, layer);
       } catch (error) {
-        this.#layersFailed = true;
-        this.#doc.reportError(error);
+        this.#layerFailed(error);
       }
     }
     if (links && !this.#linkLayer) {
@@ -244,8 +249,7 @@ export class PageView {
         this.#linkLayer = this.#buildLinks(pageLinks);
         this.layers.append(this.#linkLayer);
       } catch (error) {
-        this.#layersFailed = true;
-        this.#doc.reportError(error);
+        this.#layerFailed(error);
       }
     }
   }

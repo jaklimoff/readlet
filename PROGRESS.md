@@ -10,13 +10,13 @@ after the Chrome milestone.
 
 **Status 2026-10-03:** desktop Chromium, Firefox and WebKit work. All five selection acceptance
 tests from the brief pass in all three desktop browsers and in Pixel 7 / iPhone 15 emulation
-(165 browser test runs: 159 pass, 6 skipped; the heap tests run only in Chromium), plus 59 unit tests.
+(170 browser test runs: 164 pass, 6 skipped; the heap tests run only in Chromium), plus 59 unit tests.
 CI is green on GitHub.
 
 | Check                                     | Result                                  |
 | ----------------------------------------- | --------------------------------------- |
 | Unit tests / coverage on `core/src/model` | 59 pass / 98.6% statements, 100% lines  |
-| Playwright, 5 projects (3 desktop, 2 mobile) | 159 pass, 6 skipped (CDP heap tests)  |
+| Playwright, 5 projects (3 desktop, 2 mobile) | 164 pass, 6 skipped (CDP heap tests)  |
 | Open page 500 of 1,000 from a range server | 96 KB, range requests only (17% of a small 580 KB file) |
 | Heap, 1,000 pages after a full scroll     | about 17–23 MB (budget 200 MB)          |
 | Load/destroy 500 pages × 10               | +13% over baseline (budget 20%), flat   |
@@ -129,7 +129,8 @@ CI is green on GitHub.
 - 2026-10-03 — Range loader: Readlet requests the first chunk itself and feeds pdf.js through a
   `PDFDataRangeTransport`, so no request for the whole file starts (pdf.js began with one and
   cancelled it late on busy machines). Failed ranges are retried, then waiting operations reject
-  with `network` and the next operation retries. Tests: transient failure, permanent failure,
+  with `network` and the next operation retries (text and link layers too). Tests: transient
+  failure, permanent failure, recovery after an outage,
   CORS that hides `Content-Range`.
 
 - 2026-10-03 — Partial loading (decision 0006). URL sources now fetch only the ranges that shown

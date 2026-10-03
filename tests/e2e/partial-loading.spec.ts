@@ -27,6 +27,10 @@ async function openFromRangeServer(page: Page, query = "") {
   return {
     stats: async (request: APIRequestContext) =>
       (await (await request.get(`${RANGE_ORIGIN}/__stats?t=${t}`)).json()) as RangeStats,
+    /** Makes the next `n` range requests fail (0 ends an outage). */
+    fail: async (request: APIRequestContext, n: number) => {
+      await request.get(`${RANGE_ORIGIN}/__fail?t=${t}&n=${n}`);
+    },
   };
 }
 
@@ -78,6 +82,45 @@ test("a range request that fails is retried", async ({ page, request }) => {
 test("a range that keeps failing gives a network error, not a hang", async ({ page }) => {
   await openFromRangeServer(page, "&fail=100000");
   await expect(page.getByTestId("status")).toHaveText("error:network", { timeout: 15_000 });
+});
+
+test("after a network outage, the viewer recovers when the user scrolls", async ({
+  page,
+  request,
+}) => {
+  const server = await openFromRangeServer(page);
+  await waitForPage500(page);
+  await page.evaluate(() => {
+    const w = window as unknown as { networkErrors: number };
+    w.networkErrors = 0;
+    window.readlet?.handle?.document?.on("error", (e) => {
+      if (e.code === "network") w.networkErrors++;
+    });
+  });
+  // The network goes down; the user jumps to a page that is not loaded yet.
+  await server.fail(request, 100_000);
+  await page.evaluate(() => window.readlet?.handle?.goToPage(899));
+  await expect
+    .poll(
+      () => page.evaluate(() => (window as unknown as { networkErrors: number }).networkErrors),
+      {
+        timeout: 15_000,
+      },
+    )
+    .toBeGreaterThan(0);
+  expect(await page.locator('.rl-page[data-page-index="899"][data-rendered]').count()).toBe(0);
+  // The network comes back; the user scrolls a little.
+  await server.fail(request, 0);
+  await page.evaluate(() => {
+    const scroller = document.querySelector("[data-readlet-status]") as HTMLElement;
+    scroller.scrollTop += 40;
+  });
+  await page
+    .locator('.rl-page[data-page-index="899"][data-rendered] .rl-text-layer span')
+    .first()
+    .waitFor({ timeout: 15_000 });
+  const text = await page.evaluate(() => window.readlet?.handle?.document?.getPageText(899));
+  expect(text).toContain("This is page 900 of 1000.");
 });
 
 test("a server that hides Content-Range from CORS still works (whole file)", async ({ page }) => {

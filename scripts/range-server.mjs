@@ -8,6 +8,7 @@
 // GET /<file>?t=<token>   serves fixtures/<file>; statistics are kept per token
 //   &fail=<n>             the first n range requests that do not start at byte 0 answer 503
 //   &expose=0             do not expose Content-Range and Accept-Ranges to the page (CORS)
+// GET /__fail?t=<token>&n=<n>  from now on, fail the next n range requests of that token
 // GET /__stats?t=<token>  returns { requests, bytes, ranges, uniqueBytes, rangeBytes, log } for that token;
 //                         uniqueBytes counts each distinct range once (React StrictMode loads a
 //                         document twice in development); rangeBytes is the same without
@@ -47,6 +48,12 @@ const server = createServer((req, res) => {
   const url = new URL(req.url ?? "/", "http://localhost");
   const token = url.searchParams.get("t") ?? "";
   if (req.method === "OPTIONS") {
+    res.writeHead(204, CORS).end();
+    return;
+  }
+  if (url.pathname === "/__fail") {
+    const s = statsFor(token);
+    s.failLimit = s.failed + Number(url.searchParams.get("n") ?? 0);
     res.writeHead(204, CORS).end();
     return;
   }
@@ -103,7 +110,8 @@ const server = createServer((req, res) => {
       res.writeHead(416, { ...headers, "Content-Range": `bytes */${size}` }).end();
       return;
     }
-    if (start > 0 && s.failed < Number(url.searchParams.get("fail") ?? 0)) {
+    s.failLimit ??= Number(url.searchParams.get("fail") ?? 0);
+    if (start > 0 && s.failed < s.failLimit) {
       s.failed++;
       entry.sent = -1;
       res.writeHead(503, cors).end();
