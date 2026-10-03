@@ -49,8 +49,8 @@ tests from the brief pass in all three desktop browsers and in Pixel 7 / iPhone 
 - [x] Decision notes 0001–0004
 - [x] LICENSE (MIT) and NOTICE (pdf.js Apache 2.0) at root and in each package
 - [x] Changesets config
-- [~] GitHub Actions CI (typecheck, lint, unit, build, size, e2e). Only Chromium in the e2e matrix
-      for now. Not run on GitHub yet (no remote).
+- [~] GitHub Actions CI (typecheck, lint, unit, build, size, e2e on all five projects).
+      Runs on GitHub: github.com/jaklimoff/readlet.
 
 ## M1 — Core model (pure, Node-testable, `core/src/model`)
 

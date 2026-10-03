@@ -3,6 +3,13 @@
   "version": "0.0.0",
   "description": "React bindings for Readlet.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jaklimoff/readlet.git",
+    "directory": "packages/react"
+  },
+  "homepage": "https://github.com/jaklimoff/readlet#readme",
+  "bugs": "https://github.com/jaklimoff/readlet/issues",
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.cjs",
