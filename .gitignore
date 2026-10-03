@@ -6,3 +6,8 @@ playwright-report
 .vite
 *.log
 .DS_Store
+
+# Fixture generator font cache
+scripts/.cache
+scripts/.shot.mjs
+scripts/.align.mjs
