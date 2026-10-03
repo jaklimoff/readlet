@@ -1,6 +1,6 @@
 {
   "name": "@readletjs/core",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Framework-agnostic document rendering, text layer and selection for the browser.",
   "license": "MIT",
   "repository": {

@@ -1,6 +1,6 @@
 {
   "name": "@readletjs/pdf",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "PDF backend for Readlet, built on pdf.js.",
   "license": "MIT",
   "repository": {
