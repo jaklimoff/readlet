@@ -135,7 +135,8 @@ the next pages early. Use `prefetch: true` when users jump around a lot in files
 - [x] First publish: 0.1.0 of all three packages on npm (2026-10-03). Checked from npm in a fresh
       Vite 8 + React 19 app: README quickstart as is, dev and production build, selection works,
       no console messages
-- [ ] Trusted Publishing for the three packages (owner, on npmjs.com)
+- [x] Trusted Publishing for the three packages (`jaklimoff/readlet`, `release.yml`, permission
+      "npm publish"; no dist-tag permission). Not yet proven by a CI release.
 - [x] API review before the first publish (decision 0008): internals removed from the exports
       and stripped from the published types; `aborted` error code; `textload` event; core is a
       peer of the React package; React re-exports its types; consumer type check on the built
