@@ -8,13 +8,14 @@ Legend: `[x]` done · `[~]` in progress · `[ ]` to do
 Current target: **v0.1 working in desktop Chrome (Chromium).** Firefox, Safari and mobile come
 after the Chrome milestone.
 
-**Status 2026-10-03:** the Chrome milestone works. All five selection acceptance tests from the
-brief pass in Chromium, plus 17 more browser tests and 52 unit tests.
+**Status 2026-10-03:** desktop Chromium, Firefox and WebKit work. All five selection acceptance
+tests from the brief pass in all three browsers (65 browser test runs, 4 heap tests are
+Chromium-only), plus 52 unit tests.
 
 | Check                                     | Result                                  |
 | ----------------------------------------- | --------------------------------------- |
 | Unit tests / coverage on `core/src/model` | 52 pass / 98.6% statements, 100% lines  |
-| Playwright (Chromium)                     | 22 pass                                 |
+| Playwright (Chromium, Firefox, WebKit)    | 65 pass, 4 skipped (CDP heap tests)     |
 | Heap, 1,000 pages after a full scroll     | about 17–23 MB (budget 200 MB)          |
 | Load/destroy 500 pages × 10               | +13% over baseline (budget 20%), flat   |
 | Scroll p95 frame, 1,000 pages             | under 50 ms (asserted)                  |
@@ -22,8 +23,11 @@ brief pass in Chromium, plus 17 more browser tests and 52 unit tests.
 
 ## Known issues and open points
 
-- Firefox and WebKit are not tested yet. Firefox selection uses several ranges across pages; the
-  code reads the first and last range, but this is not verified.
+- With the pointer in the viewer margin left or right of a page (outside the page box) on the
+  anchor line, the selection extends to the start of that page, not of the line. Same in all three
+  browsers; small.
+- Firefox snaps a drag end at a character edge a fraction of a pixel differently from its caret
+  hit test. Tests use points close to the edge; users do not notice.
 - Mobile touch selection is not tested.
 - The text layer measures the ascent of the browser fallback font (like pdf.js), but
   `rangeToRects` uses the ascent of the PDF font. Highlights and the native selection colour can
@@ -110,11 +114,16 @@ brief pass in Chromium, plus 17 more browser tests and 52 unit tests.
 - [~] README with a 30-second quickstart. Verified: packed tarballs in a fresh Vite 8 React app,
       zero config, dev (with dependency pre-bundling) and production build both render.
 - [x] Bundle size check: core < 60 KB gz (without pdf.js), react < 10 KB gz
-- [ ] Firefox and WebKit pass
+- [x] Firefox and WebKit pass (desktop, Playwright Firefox 155 / WebKit 26.6)
 - [ ] Mobile (touch selection) checks
 
 ## Log
 
+- 2026-10-03 — Added Firefox and WebKit. Two cross-page selection bugs found and fixed
+  (decision 0005): Firefox ignores `scaleX` on spans when a drag continues on another page (spans
+  now use letter-spacing), and absolutely positioned page slots made the selection jump to page 1
+  when the pointer was in the gap (slots now use normal flow). Copy test reads the `copy` event,
+  so it needs no clipboard permission.
 - 2026-10-03 — Built M1–M6 for Chromium. Found and fixed: spans needed `z-index: 1` above the
   end-of-content element (drag selection collapsed); a running render restarted on every scroll
   frame; React portals added ~280 listeners per page (portals now only render when they have

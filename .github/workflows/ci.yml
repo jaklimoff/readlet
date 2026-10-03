@@ -28,8 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Chromium is the v0.1 milestone 1 target. Firefox and WebKit are added in milestone M7.
-        browser: [chromium]
+        browser: [chromium, firefox, webkit]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

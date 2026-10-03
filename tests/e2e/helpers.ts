@@ -30,7 +30,9 @@ export async function textPoint(
         r.setEnd(node, at + 1);
         const rect = r.getBoundingClientRect();
         return {
-          x: edge === "start" ? rect.left + 1 : rect.right - 1,
+          // Points just inside the edge character. Firefox snaps a drag end a little differently
+          // from its caret hit test, so the end point stays close to the edge.
+          x: edge === "start" ? rect.left + rect.width / 4 : rect.right - rect.width / 10,
           y: rect.top + rect.height / 2,
         };
       }
@@ -50,6 +52,10 @@ export async function drag(
   await page.mouse.down();
   await page.mouse.move((from.x + to.x) / 2, (from.y + to.y) / 2, { steps: 8 });
   await page.mouse.move(to.x, to.y, { steps: 8 });
+  // Firefox and WebKit apply the last pointer move to the selection a little later. A real user
+  // pauses before releasing the button; do the same, then move once more to the same point.
+  await page.waitForTimeout(50);
+  await page.mouse.move(to.x, to.y);
   await page.mouse.up();
 }
 
@@ -78,7 +84,28 @@ export async function domRange(page: Page): Promise<TextRange | null> {
   });
 }
 
+/**
+ * Presses Ctrl/Cmd+C and returns the text that the copy produced. It reads the text from the
+ * `copy` event (what the page put on the clipboard, or the native selection text when no handler
+ * changed it), so it works in every browser without clipboard permissions.
+ */
 export async function copyToClipboard(page: Page): Promise<string> {
+  await page.evaluate(() => {
+    const w = window as unknown as { __copied?: string | null };
+    w.__copied = null;
+    window.addEventListener(
+      "copy",
+      (e) => {
+        w.__copied = e.defaultPrevented
+          ? (e.clipboardData?.getData("text/plain") ?? "")
+          : (document.getSelection()?.toString() ?? "");
+      },
+      { once: true },
+    );
+  });
   await page.keyboard.press("ControlOrMeta+c");
-  return page.evaluate(() => navigator.clipboard.readText());
+  await expect
+    .poll(() => page.evaluate(() => (window as unknown as { __copied?: string | null }).__copied))
+    .not.toBeNull();
+  return page.evaluate(() => (window as unknown as { __copied: string }).__copied);
 }

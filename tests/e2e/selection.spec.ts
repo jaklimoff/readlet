@@ -114,3 +114,27 @@ test("setRange on pages that are not rendered does not throw", async ({ page }) 
   expect(range).toEqual({ start: { page: 0, offset: 0 }, end: { page: 300, offset: 5 } });
   expect(errors).toEqual([]);
 });
+
+test("pointer in the gap between pages does not jump the selection to page 1", async ({ page }) => {
+  await openFixture(page, "single-column.pdf", "&zoom=0.75");
+  await page.evaluate(() => {
+    const el = document.querySelector('.rl-page[data-page-index="3"]') as HTMLElement;
+    const scroller = el.closest("[data-readlet-status]") as HTMLElement;
+    scroller.scrollTop = el.offsetTop - scroller.clientHeight / 2;
+  });
+  await page.locator('.rl-text-layer[data-page-index="3"] span').first().waitFor();
+  const from = await textPoint(page, 2, "archivist", "start");
+  const gap = await page.evaluate(() => {
+    const r = (
+      document.querySelector('.rl-page[data-page-index="3"]') as HTMLElement
+    ).getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top - 8 };
+  });
+  await page.mouse.move(from.x, from.y);
+  await page.mouse.down();
+  await page.mouse.move(gap.x, gap.y, { steps: 8 });
+  const range = await currentRange(page);
+  await page.mouse.up();
+  expect(range?.start.page).toBe(2);
+  expect(range?.end.page).toBeGreaterThanOrEqual(2);
+});

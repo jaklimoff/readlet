@@ -11,12 +11,10 @@ export default defineConfig({
     viewport: { width: 1280, height: 900 },
     trace: "retain-on-failure",
   },
-  // Chromium first (milestone M6). Firefox and WebKit are enabled in M7.
   projects: [
-    {
-      name: "chromium",
-      use: { ...devices["Desktop Chrome"], permissions: ["clipboard-read", "clipboard-write"] },
-    },
+    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+    { name: "webkit", use: { ...devices["Desktop Safari"] } },
   ],
   webServer: {
     command: "pnpm --filter vite-react-example dev",
