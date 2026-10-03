@@ -4,6 +4,11 @@ import { usePage } from "./page";
 
 /**
  * Props of {@link HighlightLayer}.
+ *
+ * @example
+ * ```tsx
+ * const props: HighlightLayerProps = { highlights: [range], color: "rgba(0,200,255,.3)" };
+ * ```
  */
 export interface HighlightLayerProps {
   /** Highlights (or bare ranges) to draw. Only the parts on this page are drawn. */

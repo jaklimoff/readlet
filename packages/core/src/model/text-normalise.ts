@@ -38,6 +38,12 @@ export const NORMALISATION_VERSION = 1;
 
 /**
  * The text of one item inside the page string.
+ *
+ * @example
+ * ```ts
+ * const { start, text } = normalised.items[3];
+ * normalised.text.slice(start, start + text.length) === text; // true
+ * ```
  */
 export interface NormalisedItem {
   /** Offset of the first character of this item in the page string. */
@@ -48,6 +54,11 @@ export interface NormalisedItem {
 
 /**
  * A separator that the algorithm inserted between two items.
+ *
+ * @example
+ * ```ts
+ * const lineBreaks = normalised.separators.filter((s) => s.char === "\n").length;
+ * ```
  */
 export interface NormalisedSeparator {
   /** Offset of the separator in the page string. */

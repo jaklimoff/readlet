@@ -30,6 +30,11 @@ import { useViewport } from "./use-viewport";
 
 /**
  * Props of {@link Viewer}.
+ *
+ * @example
+ * ```tsx
+ * const props: ViewerProps = { src: "/paper.pdf", backend: pdf, mode: "page", zoom: 1.25 };
+ * ```
  */
 export interface ViewerProps {
   /** The document: a URL, `ArrayBuffer`, `Uint8Array`, `Blob` or `File`. */

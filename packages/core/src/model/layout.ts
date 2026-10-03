@@ -10,7 +10,14 @@ import type { Rotation, ZoomMode } from "./types";
  */
 export const PT_TO_CSS = 96 / 72;
 
-/** A width and height pair. */
+/**
+ * A width and height pair.
+ *
+ * @example
+ * ```ts
+ * const letter: Size = { width: 612, height: 792 };
+ * ```
+ */
 export interface Size {
   width: number;
   height: number;
@@ -32,6 +39,11 @@ export function rotateSize(size: Size, rotation: Rotation): Size {
 
 /**
  * Positions of pages in a vertical column, in CSS pixels.
+ *
+ * @example
+ * ```ts
+ * const { tops, totalHeight } = columnLayout(sizes, { gap: 16, padding: 16 });
+ * ```
  */
 export interface ColumnLayout {
   /** Top edge of each page slot. */

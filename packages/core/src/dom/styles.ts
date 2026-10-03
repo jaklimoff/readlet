@@ -36,5 +36,13 @@ export function injectStyles(doc: Document): void {
   doc.head.prepend(style);
 }
 
-/** The base CSS text, for apps that ship their own stylesheet. */
+/**
+ * The base CSS text, for apps that ship their own stylesheet.
+ *
+ * @example
+ * ```ts
+ * // With createViewport(doc, { container, injectStyles: false }):
+ * writeFileSync("readlet.css", baseCss);
+ * ```
+ */
 export const baseCss = CSS;

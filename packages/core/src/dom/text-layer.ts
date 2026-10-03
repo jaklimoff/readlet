@@ -2,7 +2,15 @@ import { itemGeometry } from "../model/text-geometry";
 import type { PageTextModel } from "../model/text-rects";
 import { fallbackAscent, measureAt } from "./measure";
 
-/** CSS class names used in the DOM that Readlet builds. */
+/**
+ * CSS class names used in the DOM that Readlet builds. Exported from the package root as
+ * `classNames`.
+ *
+ * @example
+ * ```ts
+ * container.querySelectorAll(`.${classNames.page}`);
+ * ```
+ */
 export const CLASS = {
   viewer: "rl-viewer",
   page: "rl-page",
@@ -27,7 +35,14 @@ const layers = new WeakMap<Element, TextLayer>();
 
 /**
  * The invisible, selectable text over one page. Spans are positioned in percentages of the page
- * box and sized with `var(--rl-scale)`, so a zoom change needs no rebuild.
+ * box and sized with `var(--rl-scale)`, so a zoom change needs no rebuild. Viewports build text
+ * layers; apps read them.
+ *
+ * @example
+ * ```ts
+ * const layer = viewport.getPageView(0)?.textLayer;
+ * const offset = layer?.offsetFromBoundary(node, 3); // DOM point -> page string offset
+ * ```
  */
 export class TextLayer {
   readonly element: HTMLDivElement;

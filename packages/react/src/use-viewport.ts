@@ -38,6 +38,11 @@ export type UseViewportOptions = Omit<ViewportOptions, "container">;
 
 /**
  * The state that {@link useViewport} returns.
+ *
+ * @example
+ * ```tsx
+ * const { currentPage, pageCount, nextPage }: ViewportState = useViewport(ref, doc.document);
+ * ```
  */
 export interface ViewportState {
   /** The core viewport, or `null` before it exists. */

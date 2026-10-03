@@ -17,6 +17,12 @@ export type TextMeasurer = (text: string, fontFamily: string) => number;
 
 /**
  * The text model of one page: the backend items and their normalised text.
+ *
+ * @example
+ * ```ts
+ * const model: PageTextModel = await doc.getTextModel(0);
+ * console.log(model.normalised.text);
+ * ```
  */
 export interface PageTextModel {
   items: readonly TextItem[];

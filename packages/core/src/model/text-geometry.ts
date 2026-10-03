@@ -3,6 +3,11 @@ import type { TextItem } from "./backend";
 /**
  * The box of one text item in page coordinates, the same geometry the pdf.js text layer uses.
  * The box starts at (`left`, `top`), runs `length` along `angle`, and is `fontHeight` thick.
+ *
+ * @example
+ * ```ts
+ * const { left, top, length, fontHeight } = itemGeometry(item);
+ * ```
  */
 export interface ItemGeometry {
   left: number;

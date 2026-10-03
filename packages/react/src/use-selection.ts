@@ -10,6 +10,11 @@ import { useEffect, useMemo, useState } from "react";
 
 /**
  * The state that {@link useSelection} returns.
+ *
+ * @example
+ * ```tsx
+ * const { range, text, setRange }: SelectionState = useSelection(viewport);
+ * ```
  */
 export interface SelectionState {
   /** The current selection, or `null`. */

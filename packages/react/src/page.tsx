@@ -5,6 +5,11 @@ import type { PageHandle } from "./use-viewport";
 
 /**
  * What a component inside {@link Page} can read with {@link usePage}.
+ *
+ * @example
+ * ```tsx
+ * const { page, viewport }: PageContextValue = usePage();
+ * ```
  */
 export interface PageContextValue {
   page: PageHandle;
@@ -33,6 +38,11 @@ export function usePage(): PageContextValue {
 
 /**
  * Props of {@link Page}.
+ *
+ * @example
+ * ```tsx
+ * <Page page={handle} viewport={viewport}>{overlay}</Page>
+ * ```
  */
 export interface PageProps {
   page: PageHandle;

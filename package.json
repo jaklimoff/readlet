@@ -16,7 +16,8 @@
     "test:e2e": "playwright test",
     "dev": "pnpm --filter vite-react-example dev",
     "fixtures": "node scripts/make-fixtures.mjs",
-    "size": "node scripts/size-check.mjs"
+    "size": "node scripts/size-check.mjs",
+    "tsdoc": "node scripts/check-tsdoc.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",

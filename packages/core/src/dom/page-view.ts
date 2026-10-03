@@ -4,7 +4,14 @@ import type { PageInfo, PageLink, Rotation } from "../model/types";
 import type { ReadletDocument } from "./document";
 import { CLASS, TextLayer } from "./text-layer";
 
-/** The state of a {@link PageView}. */
+/**
+ * The state of a {@link PageView}.
+ *
+ * @example
+ * ```ts
+ * if (viewport.getPageView(0)?.state === "rendered") showPage();
+ * ```
+ */
 export type PageViewState = "idle" | "rendering" | "rendered";
 
 /** Options that a {@link PageView} reads on every render. */
