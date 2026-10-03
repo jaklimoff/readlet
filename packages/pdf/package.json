@@ -1,5 +1,5 @@
 {
-  "name": "@readlet/pdf",
+  "name": "@readletjs/pdf",
   "version": "0.0.0",
   "description": "PDF backend for Readlet, built on pdf.js.",
   "license": "MIT",
@@ -30,8 +30,10 @@
   },
   "files": [
     "dist",
+    "!dist/worker-source-*.map",
     "NOTICE",
-    "LICENSE"
+    "LICENSE",
+    "README.md"
   ],
   "scripts": {
     "build": "tsup",
@@ -41,9 +43,24 @@
     "pdfjs-dist": "~6.3.289"
   },
   "peerDependencies": {
-    "@readlet/core": "workspace:^"
+    "@readletjs/core": "workspace:^"
   },
   "devDependencies": {
-    "@readlet/core": "workspace:^"
+    "@readletjs/core": "workspace:^"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "import": {
+          "types": "./dist/index.d.ts",
+          "default": "./dist/index.js"
+        },
+        "require": {
+          "types": "./dist/index.d.cts",
+          "default": "./dist/index.cjs"
+        }
+      }
+    }
   }
 }

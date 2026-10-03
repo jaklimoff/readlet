@@ -716,7 +716,7 @@ function sameList(a: readonly number[], b: readonly number[]): boolean {
  *
  * @example
  * ```ts
- * import { createViewport } from "@readlet/core";
+ * import { createViewport } from "@readletjs/core";
  *
  * const viewport = createViewport(doc, {
  *   container: document.getElementById("viewer")!,

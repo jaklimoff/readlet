@@ -6,7 +6,7 @@ import {
   type ReadletDocument,
   type ReadletError,
   toReadletError,
-} from "@readlet/core";
+} from "@readletjs/core";
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -50,8 +50,8 @@ const IDLE: DocumentState = { status: "idle", document: null, error: null, progr
  *
  * @example
  * ```tsx
- * import { useDocument } from "@readlet/react";
- * import { createPdfBackend } from "@readlet/pdf";
+ * import { useDocument } from "@readletjs/react";
+ * import { createPdfBackend } from "@readletjs/pdf";
  *
  * const pdf = createPdfBackend();
  *

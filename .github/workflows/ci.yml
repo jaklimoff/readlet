@@ -22,6 +22,7 @@ jobs:
       - run: pnpm test:coverage
       - run: pnpm build
       - run: pnpm size
+      - run: node scripts/release.mjs --dry-run
       - run: node scripts/verify-fixtures.mjs
 
   e2e:

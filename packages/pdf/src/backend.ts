@@ -12,7 +12,7 @@ import {
   type Rotation,
   type TextItem,
   toReadletError,
-} from "@readlet/core";
+} from "@readletjs/core";
 import type {
   PageViewport,
   PDFDataRangeTransport,
@@ -484,8 +484,8 @@ class PdfDocument implements BackendDocument {
  *
  * @example
  * ```ts
- * import { loadDocument } from "@readlet/core";
- * import { createPdfBackend } from "@readlet/pdf";
+ * import { loadDocument } from "@readletjs/core";
+ * import { createPdfBackend } from "@readletjs/pdf";
  *
  * const pdf = createPdfBackend();
  * const doc = await loadDocument("/paper.pdf", { backend: pdf });

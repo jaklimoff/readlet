@@ -10,9 +10,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@readlet/core": "workspace:*",
-    "@readlet/pdf": "workspace:*",
-    "@readlet/react": "workspace:*",
+    "@readletjs/core": "workspace:*",
+    "@readletjs/pdf": "workspace:*",
+    "@readletjs/react": "workspace:*",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },

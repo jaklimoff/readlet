@@ -13,7 +13,7 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   target: "es2022",
-  external: ["pdfjs-dist", "@readlet/core"],
+  external: ["pdfjs-dist", "@readletjs/core"],
   // The worker source is inlined (decision 0004), although pdfjs-dist is a dependency.
   noExternal: [/\?raw$/],
   esbuildPlugins: [

@@ -205,13 +205,13 @@ importers:
 
   examples/vite-react:
     dependencies:
-      '@readlet/core':
+      '@readletjs/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@readlet/pdf':
+      '@readletjs/pdf':
         specifier: workspace:*
         version: link:../../packages/pdf
-      '@readlet/react':
+      '@readletjs/react':
         specifier: workspace:*
         version: link:../../packages/react
       react:
@@ -242,13 +242,13 @@ importers:
         specifier: ~6.3.289
         version: 6.3.289
     devDependencies:
-      '@readlet/core':
+      '@readletjs/core':
         specifier: workspace:^
         version: link:../core
 
   packages/react:
     dependencies:
-      '@readlet/core':
+      '@readletjs/core':
         specifier: workspace:^
         version: link:../core
     devDependencies:

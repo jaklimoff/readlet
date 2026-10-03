@@ -12,8 +12,8 @@ test.describe("loading", () => {
   test("loads from ArrayBuffer, Uint8Array and Blob with the core API", async ({ page }) => {
     await openFixture(page, "single-column.pdf");
     const counts = await page.evaluate(async () => {
-      const { loadDocument } = await import("/@id/@readlet/core" as string);
-      const { createPdfBackend } = await import("/@id/@readlet/pdf" as string);
+      const { loadDocument } = await import("/@id/@readletjs/core" as string);
+      const { createPdfBackend } = await import("/@id/@readletjs/pdf" as string);
       const backend = createPdfBackend();
       const buf = await (await fetch("/rotated.pdf")).arrayBuffer();
       const out: number[] = [];
@@ -31,8 +31,8 @@ test.describe("loading", () => {
   test("reports load progress for URL and Blob sources", async ({ page }) => {
     await openFixture(page, "single-column.pdf");
     const result = await page.evaluate(async () => {
-      const { loadDocument } = await import("/@id/@readlet/core" as string);
-      const { createPdfBackend } = await import("/@id/@readlet/pdf" as string);
+      const { loadDocument } = await import("/@id/@readletjs/core" as string);
+      const { createPdfBackend } = await import("/@id/@readletjs/pdf" as string);
       const backend = createPdfBackend();
       const fromUrl: Array<{ loaded: number; total: number | null }> = [];
       const doc = await loadDocument("/large-1000.pdf", {

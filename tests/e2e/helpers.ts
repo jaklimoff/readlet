@@ -1,5 +1,5 @@
 import { expect, type Page } from "@playwright/test";
-import type { PageRect, TextRange } from "@readlet/core";
+import type { PageRect, TextRange } from "@readletjs/core";
 
 export async function openFixture(page: Page, file: string, query = ""): Promise<void> {
   await page.goto(`/?file=${file}${query}`);

@@ -13,3 +13,6 @@ scripts/.*.mjs
 
 # Generated speed benchmark PDFs (large; scripts/make-bench-fixtures.mjs)
 fixtures/bench
+
+# Tarballs made by scripts/release.mjs
+.release

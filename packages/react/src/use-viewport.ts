@@ -8,7 +8,7 @@ import {
   type Viewport,
   type ViewportOptions,
   type ZoomMode,
-} from "@readlet/core";
+} from "@readletjs/core";
 import { type RefObject, useEffect, useLayoutEffect, useMemo, useState } from "react";
 
 /**

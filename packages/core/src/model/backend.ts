@@ -143,7 +143,7 @@ export interface LoadProgress {
  *
  * @example
  * ```ts
- * import { createPdfBackend } from "@readlet/pdf";
+ * import { createPdfBackend } from "@readletjs/pdf";
  * const backend: DocumentBackend = createPdfBackend();
  * ```
  */

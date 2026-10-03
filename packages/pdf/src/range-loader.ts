@@ -1,4 +1,4 @@
-import { ReadletError } from "@readlet/core";
+import { ReadletError } from "@readletjs/core";
 import type { PDFDataRangeTransport } from "pdfjs-dist";
 
 type PdfJs = typeof import("pdfjs-dist");

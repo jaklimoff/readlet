@@ -2,7 +2,7 @@
 // A change in these snapshots changes TextRange offsets: it is a breaking change.
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { NORMALISATION_VERSION, normalisePageText } from "@readlet/core";
+import { NORMALISATION_VERSION, normalisePageText } from "@readletjs/core";
 import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { describe, expect, it } from "vitest";
 import { convertTextContent } from "../src/backend";

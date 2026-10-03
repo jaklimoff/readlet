@@ -1,5 +1,5 @@
 {
-  "name": "@readlet/core",
+  "name": "@readletjs/core",
   "version": "0.0.0",
   "description": "Framework-agnostic document rendering, text layer and selection for the browser.",
   "license": "MIT",
@@ -31,10 +31,26 @@
   "files": [
     "dist",
     "NOTICE",
-    "LICENSE"
+    "LICENSE",
+    "README.md"
   ],
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "import": {
+          "types": "./dist/index.d.ts",
+          "default": "./dist/index.js"
+        },
+        "require": {
+          "types": "./dist/index.d.cts",
+          "default": "./dist/index.cjs"
+        }
+      }
+    }
   }
 }

@@ -50,7 +50,7 @@ export interface DocumentEvents {
  * ```
  */
 export interface LoadDocumentOptions {
-  /** The format backend, for example `createPdfBackend()` from `@readlet/pdf`. */
+  /** The format backend, for example `createPdfBackend()` from `@readletjs/pdf`. */
   backend: DocumentBackend;
   /** Called while bytes load. */
   onProgress?: (progress: LoadProgress) => void;
@@ -336,8 +336,8 @@ export class ReadletDocument implements Subscribable<DocumentEvents> {
  *
  * @example
  * ```ts
- * import { loadDocument } from "@readlet/core";
- * import { createPdfBackend } from "@readlet/pdf";
+ * import { loadDocument } from "@readletjs/core";
+ * import { createPdfBackend } from "@readletjs/pdf";
  *
  * const doc = await loadDocument(file, {
  *   backend: createPdfBackend(),

@@ -420,7 +420,7 @@ function cloneRange(r: TextRange): TextRange {
  *
  * @example
  * ```ts
- * import { createSelectionManager } from "@readlet/core";
+ * import { createSelectionManager } from "@readletjs/core";
  *
  * const selection = createSelectionManager(viewport);
  * selection.on("change", (range) => console.log(range));

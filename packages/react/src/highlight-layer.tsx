@@ -1,4 +1,4 @@
-import type { Highlight, TextRange } from "@readlet/core";
+import type { Highlight, TextRange } from "@readletjs/core";
 import { type CSSProperties, type ReactNode, useEffect, useMemo, useState } from "react";
 import { usePage } from "./page";
 

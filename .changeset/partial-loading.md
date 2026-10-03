@@ -1,7 +1,7 @@
 ---
-"@readlet/core": minor
-"@readlet/pdf": minor
-"@readlet/react": minor
+"@readletjs/core": minor
+"@readletjs/pdf": minor
+"@readletjs/react": minor
 ---
 
 Load only what the shown pages need. URL sources use HTTP Range requests without background

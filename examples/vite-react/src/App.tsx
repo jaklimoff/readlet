@@ -1,12 +1,12 @@
-import { isTextRange, type OutlineItem, type Rotation, type TextRange } from "@readlet/core";
-import { createPdfBackend } from "@readlet/pdf";
+import { isTextRange, type OutlineItem, type Rotation, type TextRange } from "@readletjs/core";
+import { createPdfBackend } from "@readletjs/pdf";
 import {
   type Highlight,
   Viewer,
   type ViewerHandle,
   type ViewMode,
   type ZoomMode,
-} from "@readlet/react";
+} from "@readletjs/react";
 import { useEffect, useRef, useState } from "react";
 
 // Create the backend once, at module level.

@@ -10,7 +10,7 @@ export type {
   TextRange,
   ViewMode,
   ZoomMode,
-} from "@readlet/core";
+} from "@readletjs/core";
 export { HighlightLayer, type HighlightLayerProps } from "./highlight-layer";
 export { Page, type PageContextValue, type PageProps, usePage } from "./page";
 export { type DocumentState, type UseDocumentOptions, useDocument } from "./use-document";

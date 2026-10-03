@@ -5,7 +5,7 @@ import {
   type SelectionManagerOptions,
   type TextRange,
   type Viewport,
-} from "@readlet/core";
+} from "@readletjs/core";
 import { useEffect, useMemo, useState } from "react";
 
 /**

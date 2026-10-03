@@ -12,7 +12,7 @@ import type {
   ViewMode,
   Viewport,
   ZoomMode,
-} from "@readlet/core";
+} from "@readletjs/core";
 import {
   type CSSProperties,
   type ForwardedRef,
@@ -192,8 +192,8 @@ function ViewerImpl(props: ViewerProps, ref: ForwardedRef<ViewerHandle>): ReactN
  *
  * @example
  * ```tsx
- * import { Viewer } from "@readlet/react";
- * import { createPdfBackend } from "@readlet/pdf";
+ * import { Viewer } from "@readletjs/react";
+ * import { createPdfBackend } from "@readletjs/pdf";
  *
  * const pdf = createPdfBackend();
  *

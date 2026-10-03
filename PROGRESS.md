@@ -65,7 +65,7 @@ the next pages early. Use `prefetch: true` when users jump around a lot in files
 ## M0 — Repository setup
 
 - [x] git, pnpm workspace, TypeScript 6 (strict, `noUncheckedIndexedAccess`), Biome
-- [x] Package skeletons: `@readlet/core`, `@readlet/pdf`, `@readlet/react`, `examples/vite-react`
+- [x] Package skeletons: `@readletjs/core`, `@readletjs/pdf`, `@readletjs/react`, `examples/vite-react`
 - [x] Decision notes 0001–0004
 - [x] LICENSE (MIT) and NOTICE (pdf.js Apache 2.0) at root and in each package
 - [x] Changesets config
@@ -85,7 +85,7 @@ the next pages early. Use `prefetch: true` when users jump around a lot in files
 - [x] Layout maths: page offsets, visible range with buffer, fit-width / fit-page scale
 - [x] Unit tests, coverage ≥ 90% on `core/src/model`
 
-## M2 — PDF backend (`@readlet/pdf`)
+## M2 — PDF backend (`@readletjs/pdf`)
 
 - [x] Load from URL, `ArrayBuffer`, `Uint8Array`, `Blob`, `File`, with progress
 - [x] Inline worker from Blob URL; `workerSrc` / `workerPort` escape hatches
@@ -104,7 +104,7 @@ the next pages early. Use `prefetch: true` when users jump around a lot in files
       (rAF debounced), copy handler, capture/restore around layout changes
 - [x] Keyboard navigation and aria labels
 
-## M4 — React adapter (`@readlet/react`)
+## M4 — React adapter (`@readletjs/react`)
 
 - [x] `useDocument`, `useViewport`, `useSelection`
 - [x] `<Viewer>`, `<Page>`, `<HighlightLayer>`
@@ -130,6 +130,13 @@ the next pages early. Use `prefetch: true` when users jump around a lot in files
 
 ## M7 — Release readiness
 
+- [x] npm organisation `readletjs` (the `readlet` organisation belongs to another account;
+      decision 0007); packages renamed to `@readletjs/*`
+- [x] Release workflow: Changesets version PR, `scripts/release.mjs`, Trusted Publishing,
+      `RELEASING.md`; package READMEs; clean published `exports`
+- [ ] First publish (local, by the owner) and Trusted Publishing setup — after the API review
+- [ ] API review before the first publish
+
 - [x] Partial loading (decision 0006): HTTP Range requests without background prefetch by
       default, lazy page sizes, `initialPage` loads first; tested with an S3-like range server
 
@@ -143,6 +150,10 @@ the next pages early. Use `prefetch: true` when users jump around a lot in files
       cannot emulate the OS selection UI).
 
 ## Log
+
+- 2026-10-03 — Created the npm organisation `readletjs` and renamed the packages (decision 0007).
+  Release workflow with Changesets and npm Trusted Publishing; dry-run release in CI. The pdf
+  package no longer ships the worker source maps (1.6 MB → 0.8 MB packed).
 
 - 2026-10-03 — Speed benchmark (`pnpm bench`, CI job `bench` with a JSON artifact): generated
   image, vector and text PDFs; desktop and slow-phone profiles (CPU and network emulation);

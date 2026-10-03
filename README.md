@@ -4,18 +4,18 @@ Open source (MIT) TypeScript library to show documents in the browser. It starts
 Pages render on canvas. A selectable text layer sits on top, and the selection comes out as
 stable, serialisable `TextRange`s that your app can store, sync or annotate.
 
-> Status: pre-release (v0.1 in progress). Works in desktop Chromium. Firefox, Safari and
-> mobile are next. See [PROGRESS.md](PROGRESS.md).
+> Status: pre-release (v0.1 in progress). Tested in Chromium, Firefox and WebKit (Safari) on
+> desktop, and in Android and iPhone emulation. See [PROGRESS.md](PROGRESS.md).
 
 ## Quickstart (React)
 
 ```sh
-npm install @readlet/react @readlet/core @readlet/pdf
+npm install @readletjs/react @readletjs/core @readletjs/pdf
 ```
 
 ```tsx
-import { Viewer } from "@readlet/react";
-import { createPdfBackend } from "@readlet/pdf";
+import { Viewer } from "@readletjs/react";
+import { createPdfBackend } from "@readletjs/pdf";
 
 const pdf = createPdfBackend();
 
@@ -38,8 +38,8 @@ No worker path, no bundler config. The pdf.js worker is bundled and starts by it
 3. **Headless core**, for any framework or plain JS:
 
 ```ts
-import { createSelectionManager, createViewport, loadDocument } from "@readlet/core";
-import { createPdfBackend } from "@readlet/pdf";
+import { createSelectionManager, createViewport, loadDocument } from "@readletjs/core";
+import { createPdfBackend } from "@readletjs/pdf";
 
 const doc = await loadDocument("/paper.pdf", { backend: createPdfBackend() });
 const viewport = createViewport(doc, { container, mode: "scroll", zoom: "fit-width" });
@@ -102,9 +102,9 @@ bucket on another origin, set CORS rules like this:
 
 | Package          | What it does                                                         |
 | ---------------- | -------------------------------------------------------------------- |
-| `@readlet/core`  | Rendering, text layer, selection, virtualisation. Zero dependencies. |
-| `@readlet/pdf`   | The PDF backend (pdf.js).                                            |
-| `@readlet/react` | React hooks and components.                                          |
+| `@readletjs/core`  | Rendering, text layer, selection, virtualisation. Zero dependencies. |
+| `@readletjs/pdf`   | The PDF backend (pdf.js).                                            |
+| `@readletjs/react` | React hooks and components.                                          |
 
 ## Develop
 

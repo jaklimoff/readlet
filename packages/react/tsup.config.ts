@@ -8,5 +8,5 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   target: "es2022",
-  external: ["react", "react-dom", "@readlet/core"],
+  external: ["react", "react-dom", "@readletjs/core"],
 });
