@@ -11,10 +11,11 @@ import { useEffect, useRef, useState } from "react";
 
 // Create the backend once, at module level.
 const params = new URLSearchParams(location.search);
-// Test hook: `?chunk=8192` sets the size of one range request.
-const pdf = createPdfBackend(
-  params.has("chunk") ? { rangeChunkSize: Number(params.get("chunk")) } : {},
-);
+// Test hooks: `?chunk=8192` sets the size of one range request; `?ranges=0` loads whole files.
+const pdf = createPdfBackend({
+  ...(params.has("chunk") ? { rangeChunkSize: Number(params.get("chunk")) } : {}),
+  ...(params.get("ranges") === "0" ? { rangeRequests: false } : {}),
+});
 
 const FIXTURES = [
   "single-column.pdf",
@@ -32,7 +33,13 @@ const FIXTURES = [
 declare global {
   interface Window {
     /** Test hook for Playwright. Not part of the library. */
-    readlet?: { handle: ViewerHandle | null; lastRange: TextRange | null; pageChanges: number[] };
+    readlet?: {
+      handle: ViewerHandle | null;
+      lastRange: TextRange | null;
+      pageChanges: number[];
+      /** Opens another document without a page reload. */
+      open: (src: string) => void;
+    };
   }
 }
 
@@ -55,7 +62,7 @@ export function App() {
   const [status, setStatus] = useState("loading");
 
   useEffect(() => {
-    window.readlet = { handle: null, lastRange: null, pageChanges: [] };
+    window.readlet = { handle: null, lastRange: null, pageChanges: [], open: setSrc };
   }, []);
 
   const selectionText = range ? (ref.current?.selection?.rangeToText(range) ?? "") : "";

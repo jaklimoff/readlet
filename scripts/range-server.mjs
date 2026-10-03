@@ -13,11 +13,6 @@
 //                         uniqueBytes counts each distinct range once (React StrictMode loads a
 //                         document twice in development); rangeBytes is the same without
 //                         the first, cancelled full request
-//
-// A response without a Range header is sent in 16 KB pieces with a short pause between them,
-// like a network. pdf.js reads the headers of that first response and then cancels it when the
-// server supports ranges; without the pause, a local server would send the whole file before
-// the cancel arrives, which no real network does.
 
 import { createReadStream, statSync } from "node:fs";
 import { createServer } from "node:http";
@@ -130,20 +125,15 @@ const server = createServer((req, res) => {
     res.end();
     return;
   }
-  const stream = createReadStream(path, {
-    start,
-    end,
-    highWaterMark: range ? 64 * 1024 : 16 * 1024,
-  });
+  const stream = createReadStream(path, { start, end, highWaterMark: 64 * 1024 });
   res.on("close", () => stream.destroy());
   stream.on("data", (chunk) => {
     if (res.destroyed) return;
     s.bytes += chunk.length;
     entry.sent += chunk.length;
-    res.write(chunk);
-    if (!range) {
+    if (!res.write(chunk)) {
       stream.pause();
-      setTimeout(() => stream.resume(), 20);
+      res.once("drain", () => stream.resume());
     }
   });
   stream.on("end", () => res.end());

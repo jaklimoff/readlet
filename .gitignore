@@ -10,3 +10,6 @@ playwright-report
 # Fixture generator font cache
 scripts/.cache
 scripts/.*.mjs
+
+# Generated speed benchmark PDFs (large; scripts/make-bench-fixtures.mjs)
+fixtures/bench

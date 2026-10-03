@@ -113,6 +113,7 @@ pnpm install
 pnpm dev          # example app at http://localhost:5173 (fixtures from ./fixtures)
 pnpm test         # unit tests
 pnpm test:e2e     # Playwright browser tests
+pnpm bench        # speed benchmark on heavy generated PDFs (Chromium; desktop and slow phone)
 pnpm build && pnpm size
 ```
 
