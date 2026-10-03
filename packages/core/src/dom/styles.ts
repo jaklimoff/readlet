@@ -1,6 +1,6 @@
 const CSS = `
-.rl-viewer{position:relative;margin:0;padding:0;box-sizing:border-box}
-.rl-page{position:absolute;overflow:hidden;background:var(--rl-page-background,#fff);box-shadow:var(--rl-page-shadow,0 0 0 1px rgba(0,0,0,.08),0 1px 3px rgba(0,0,0,.16))}
+.rl-viewer{position:relative;display:flow-root;margin:0;padding:0;box-sizing:border-box}
+.rl-page{position:relative;margin:0;overflow:hidden;background:var(--rl-page-background,#fff);box-shadow:var(--rl-page-shadow,0 0 0 1px rgba(0,0,0,.08),0 1px 3px rgba(0,0,0,.16))}
 .rl-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;user-select:none;-webkit-user-select:none}
 .rl-layers{position:absolute;left:0;top:0;transform-origin:0 0}
 .rl-overlay{position:absolute;inset:0;pointer-events:none;z-index:0}

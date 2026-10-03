@@ -79,11 +79,17 @@ export class TextLayer {
       style.fontSize = `calc(var(--rl-scale) * ${round(g.fontHeight)}px)`;
       style.fontFamily = item.fontFamily;
       if (item.dir === "rtl") span.dir = "rtl";
+      if (g.angle !== 0) style.transform = `rotate(${round(g.angle)}rad)`;
+      // Match the span width to the glyph run with letter-spacing, not with `scaleX()` as pdf.js
+      // does: Firefox ignores the transform when it extends a selection that started in another
+      // page, so the selection end would lag behind the pointer. CSS adds the spacing after every
+      // character, so the extra width is split over all characters.
       const natural = measureAt(n.text, item.fontFamily, g.fontHeight);
-      const transforms: string[] = [];
-      if (g.angle !== 0) transforms.push(`rotate(${round(g.angle)}rad)`);
-      if (natural > 0 && g.length > 0) transforms.push(`scaleX(${round(g.length / natural)})`);
-      if (transforms.length) style.transform = transforms.join(" ");
+      if (natural > 0 && g.length > 0) {
+        const spacing = (g.length - natural) / n.text.length;
+        if (Math.abs(spacing) > 1e-3)
+          style.letterSpacing = `calc(var(--rl-scale) * ${round(spacing)}px)`;
+      }
       span.dataset.o = String(n.start);
       this.#register(textNode, n.start);
       fragment.append(span);

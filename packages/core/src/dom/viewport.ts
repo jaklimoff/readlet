@@ -568,20 +568,21 @@ export class Viewport implements Subscribable<ViewportEvents> {
     this.element.style.width = `${contentWidth}px`;
     this.element.style.height = `${this.#layout.totalHeight}px`;
 
+    // Page slots are in normal block flow (not absolutely positioned): between two pages,
+    // browsers then map the pointer to the nearest page, so a drag selection does not jump to
+    // the start of the document. The margins give the same positions as `columnLayout`.
+    this.element.style.paddingTop = `${padding}px`;
+    this.element.style.paddingBottom = `${padding}px`;
+    const last = mode === "page" ? this.#current : this.#views.length - 1;
     for (let i = 0; i < this.#views.length; i++) {
       const v = this.#views[i] as PageView;
       const size = cssSizes[i] as { width: number; height: number };
       const s = v.element.style;
-      if (mode === "page") {
-        const shown = i === this.#current;
-        s.display = shown ? "" : "none";
-        if (!shown) continue;
-        s.top = `${padding}px`;
-      } else {
-        s.display = "";
-        s.top = `${this.#layout.tops[i]}px`;
-      }
-      s.left = `${Math.max(padding, (contentWidth - size.width) / 2)}px`;
+      const shown = mode === "scroll" || i === this.#current;
+      s.display = shown ? "" : "none";
+      if (!shown) continue;
+      s.marginBottom = i === last ? "0" : `${gap}px`;
+      s.marginLeft = `${Math.max(padding, (contentWidth - size.width) / 2)}px`;
     }
 
     if (anchor && mode === "scroll") {
