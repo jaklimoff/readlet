@@ -1,6 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
+  // One retry on CI only; Playwright reports a test that passes on retry as "flaky".
+  retries: process.env.CI ? 1 : 0,
+  forbidOnly: !!process.env.CI,
   testDir: "tests/e2e",
   timeout: 60_000,
   expect: { timeout: 10_000 },

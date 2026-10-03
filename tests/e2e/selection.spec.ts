@@ -52,8 +52,15 @@ test.describe("selection acceptance (brief)", () => {
 
   test("zoom from 100% to 200% keeps the range", async ({ page }) => {
     await openFixture(page, "single-column.pdf", "&zoom=1");
+    // At 100% the page is wider than a phone screen: bring the line into view and keep the
+    // range short so that both drag points are on the screen.
+    await page.evaluate(() => {
+      const spans = document.querySelectorAll('.rl-text-layer[data-page-index="0"] span');
+      const span = [...spans].find((s) => s.textContent?.includes("The quick lighthouse"));
+      span?.scrollIntoView({ block: "center", inline: "start" });
+    });
     const from = await textPoint(page, 0, "quick", "start");
-    const to = await textPoint(page, 0, "herons", "end");
+    const to = await textPoint(page, 0, "keeper", "end");
     await drag(page, from, to);
     const before = await currentRange(page);
     expect(before).not.toBeNull();
