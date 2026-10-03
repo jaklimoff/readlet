@@ -133,6 +133,9 @@ export class Viewport implements Subscribable<ViewportEvents> {
     onLinkClick?: ViewportOptions["onLinkClick"];
   };
   #layout: ColumnLayout = { tops: [], sizes: [], totalHeight: 0, maxWidth: 0 };
+  /** The page sizes (points) that the current layout uses, to detect real sizes that differ. */
+  #laidOut: Array<{ width: number; height: number }> = [];
+  #relayoutQueued = false;
   #scale = 1;
   #current = 0;
   #window: number[] = [];
@@ -455,6 +458,20 @@ export class Viewport implements Subscribable<ViewportEvents> {
       c.removeEventListener("scroll", onScroll);
       c.removeEventListener("keydown", onKey);
     });
+    // Lazy page sizes: when a page loads with a size other than its estimate, lay out again.
+    // Changes are collected in a microtask, so one relayout runs before the next paint.
+    this.#cleanups.push(
+      this.document.on("pageinfo", (info) => {
+        const used = this.#laidOut[info.index];
+        if (used && used.width === info.width && used.height === info.height) return;
+        if (this.#relayoutQueued) return;
+        this.#relayoutQueued = true;
+        queueMicrotask(() => {
+          this.#relayoutQueued = false;
+          this.#relayout({ anchor: true });
+        });
+      }),
+    );
     if (typeof ResizeObserver !== "undefined") {
       this.#lastSize = { width: c.clientWidth, height: c.clientHeight };
       this.#resizeObserver = new ResizeObserver(() => {
@@ -532,18 +549,24 @@ export class Viewport implements Subscribable<ViewportEvents> {
     const { padding, gap, mode, rotation, zoom, scaleLimits } = this.#opts;
 
     // Remember what is at the top of the viewport so that zoom keeps it in place.
+    // Inside the page the position is kept as a fraction of the page height; above the page
+    // (in the gap that goToPage leaves) it is kept in pixels, so a page that changes height
+    // does not move its own top.
     let anchorPage = this.#current;
     let anchorFraction = 0;
+    let anchorGap = 0;
     if (anchor && mode === "scroll" && this.#layout.tops.length) {
       const y = c.scrollTop;
       anchorPage = mostVisiblePage(this.#layout, y, 1);
       const top = this.#layout.tops[anchorPage] ?? 0;
       const h = this.#layout.sizes[anchorPage]?.height ?? 1;
-      anchorFraction = (y - top) / h;
+      if (y < top) anchorGap = y - top;
+      else anchorFraction = (y - top) / h;
     }
     const xFraction =
       c.scrollWidth > c.clientWidth ? (c.scrollLeft + c.clientWidth / 2) / c.scrollWidth : 0.5;
 
+    this.#laidOut = this.document.pages.map((p) => ({ width: p.width, height: p.height }));
     const rotated = this.document.pages.map((p) => rotateSize(p, rotation));
     const free = {
       width: Math.max(1, c.clientWidth - 2 * padding),
@@ -588,7 +611,7 @@ export class Viewport implements Subscribable<ViewportEvents> {
     if (anchor && mode === "scroll") {
       const top = this.#layout.tops[anchorPage] ?? 0;
       const h = this.#layout.sizes[anchorPage]?.height ?? 0;
-      c.scrollTop = top + anchorFraction * h;
+      c.scrollTop = top + anchorGap + anchorFraction * h;
     }
     if (c.scrollWidth > c.clientWidth) c.scrollLeft = xFraction * c.scrollWidth - c.clientWidth / 2;
 

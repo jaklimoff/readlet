@@ -10,16 +10,18 @@ after the Chrome milestone.
 
 **Status 2026-10-03:** desktop Chromium, Firefox and WebKit work. All five selection acceptance
 tests from the brief pass in all three desktop browsers and in Pixel 7 / iPhone 15 emulation
-(140 browser test runs: 134 pass, 6 skipped; the heap tests run only in Chromium), plus 52 unit tests.
+(150 browser test runs: 144 pass, 6 skipped; the heap tests run only in Chromium), plus 59 unit tests.
+CI is green on GitHub.
 
 | Check                                     | Result                                  |
 | ----------------------------------------- | --------------------------------------- |
-| Unit tests / coverage on `core/src/model` | 52 pass / 98.6% statements, 100% lines  |
-| Playwright, 5 projects (3 desktop, 2 mobile) | 134 pass, 6 skipped (CDP heap tests)  |
+| Unit tests / coverage on `core/src/model` | 59 pass / 98.6% statements, 100% lines  |
+| Playwright, 5 projects (3 desktop, 2 mobile) | 144 pass, 6 skipped (CDP heap tests)  |
+| Open page 500 of 1,000 from a range server | 96 KB in range requests (17% of a small 580 KB file) |
 | Heap, 1,000 pages after a full scroll     | about 17–23 MB (budget 200 MB)          |
 | Load/destroy 500 pages × 10               | +13% over baseline (budget 20%), flat   |
 | Scroll p95 frame, 1,000 pages             | under 50 ms (asserted)                  |
-| Bundle gz: core / react / pdf             | 17.3 / 3.1 / 3.6 KB (budget 60 / 10 KB) |
+| Bundle gz: core / react / pdf             | 17.9 / 3.2 / 3.8 KB (budget 60 / 10 KB) |
 
 ## Known issues and open points
 
@@ -37,8 +39,8 @@ tests from the brief pass in all three desktop browsers and in Pixel 7 / iPhone 
   (the profile preference has no effect), so no change was made without a test.
 - React 18 is a declared peer but only React 19 is tested.
 - `goToPage(index, { top })` ignores `top` when the user rotation is 90° or 270°.
-- All page sizes are read at load (one `getPage` per page). Fast enough for 1,000 pages; a lazy
-  size scheme can come later if needed.
+- Time to first page and render time per page are not measured with a real, image-heavy PDF
+  yet. The range test reports a time to first page, but on a local server.
 - No React unit tests yet; React is covered by the browser tests through the example app.
 - Vertical (`ttb`) text has no fixture yet.
 
@@ -110,6 +112,9 @@ tests from the brief pass in all three desktop browsers and in Pixel 7 / iPhone 
 
 ## M7 — Release readiness
 
+- [x] Partial loading (decision 0006): HTTP Range requests without background prefetch by
+      default, lazy page sizes, `initialPage` loads first; tested with an S3-like range server
+
 - [x] TSDoc with an example on every export (`pnpm tsdoc` checks it in CI)
 - [~] README with a 30-second quickstart. Verified: packed tarballs in a fresh Vite 8 React app,
       zero config, dev (with dependency pre-bundling) and production build both render.
@@ -120,6 +125,13 @@ tests from the brief pass in all three desktop browsers and in Pixel 7 / iPhone 
       cannot emulate the OS selection UI).
 
 ## Log
+
+- 2026-10-03 — Partial loading (decision 0006). URL sources now fetch only the ranges that shown
+  pages need (pdf.js streamed and pre-fetched the whole file before). Page sizes are lazy:
+  `loadDocument` loads only `initialPage`; other pages are estimated and replaced as they load,
+  with a relayout that keeps the reading position. Fixed on the way: the zoom/relayout anchor
+  scaled the gap above a page with the page height. New `scripts/range-server.mjs` (Range + CORS
+  like S3, byte counts) for the tests.
 
 - 2026-10-03 — Published the public repo https://github.com/jaklimoff/readlet (history checked for
   secrets and local paths first). First CI runs found three Linux-only problems, all fixed: Vitest

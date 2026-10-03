@@ -10,7 +10,11 @@ import {
 import { useEffect, useRef, useState } from "react";
 
 // Create the backend once, at module level.
-const pdf = createPdfBackend();
+const params = new URLSearchParams(location.search);
+// Test hook: `?chunk=8192` sets the size of one range request.
+const pdf = createPdfBackend(
+  params.has("chunk") ? { rangeChunkSize: Number(params.get("chunk")) } : {},
+);
 
 const FIXTURES = [
   "single-column.pdf",
@@ -32,7 +36,7 @@ declare global {
   }
 }
 
-const params = new URLSearchParams(location.search);
+const initialPage = params.has("page") ? Number(params.get("page")) : undefined;
 
 export function App() {
   const ref = useRef<ViewerHandle>(null);
@@ -166,6 +170,7 @@ export function App() {
             }}
             src={src}
             backend={pdf}
+            {...(initialPage !== undefined ? { initialPage } : {})}
             mode={mode}
             zoom={zoom}
             rotation={rotation}

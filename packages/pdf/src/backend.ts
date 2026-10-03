@@ -56,6 +56,22 @@ export interface PdfBackendOptions {
   httpHeaders?: Record<string, string>;
   /** Send cookies with cross-origin URL sources. */
   withCredentials?: boolean;
+  /**
+   * Load URL sources with HTTP Range requests when the server supports them, so that only the
+   * bytes that shown pages need are downloaded. Default `true`. The server must send
+   * `Accept-Ranges: bytes` and no `Content-Encoding`; a cross-origin server must also allow the
+   * `Range` request header and expose `Accept-Ranges`, `Content-Range` and `Content-Length`.
+   * Servers without range support still work: the whole file is downloaded.
+   */
+  rangeRequests?: boolean;
+  /**
+   * Keep downloading the rest of the file in the background after the first page shows (the
+   * pdf.js viewer default). Default `false`: only the ranges that pages need are fetched, when
+   * they need them. Set `true` for small files on a link with high latency.
+   */
+  prefetch?: boolean;
+  /** Size of one range request in bytes. Default `65536`. */
+  rangeChunkSize?: number;
 }
 
 /** Loads the pdf.js main module once, lazily, so importing this package costs nothing. */
@@ -473,6 +489,11 @@ export function createPdfBackend(options: PdfBackendOptions = {}): DocumentBacke
           worker,
           httpHeaders: options.httpHeaders,
           withCredentials: options.withCredentials ?? false,
+          disableRange: options.rangeRequests === false,
+          // pdf.js stops pre-fetching only when streaming is also disabled.
+          disableStream: options.prefetch !== true,
+          disableAutoFetch: options.prefetch !== true,
+          rangeChunkSize: options.rangeChunkSize ?? 65536,
           cMapUrl: `${assets}/cmaps/`,
           cMapPacked: true,
           standardFontDataUrl: `${assets}/standard_fonts/`,

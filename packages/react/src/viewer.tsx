@@ -118,7 +118,10 @@ function ViewerImpl(props: ViewerProps, ref: ForwardedRef<ViewerHandle>): ReactN
   });
   callbacks.current = { onLoad, onError, onProgress, onPageChange, onSelectionChange, onLinkClick };
 
-  const doc = useDocument(src, { backend });
+  const doc = useDocument(src, {
+    backend,
+    ...(initialPage !== undefined ? { initialPage } : {}),
+  });
   const vp = useViewport(containerRef, doc.document, {
     mode,
     zoom,

@@ -21,9 +21,17 @@ export default defineConfig({
     { name: "mobile-chrome", use: { ...devices["Pixel 7"] } },
     { name: "mobile-safari", use: { ...devices["iPhone 15"] } },
   ],
-  webServer: {
-    command: "pnpm --filter vite-react-example dev",
-    url: "http://localhost:5173",
-    reuseExistingServer: !process.env.CI,
-  },
+  webServer: [
+    {
+      command: "pnpm --filter vite-react-example dev",
+      url: "http://localhost:5173",
+      reuseExistingServer: !process.env.CI,
+    },
+    {
+      // S3-like server with HTTP Range and CORS, on another origin (partial loading tests).
+      command: "node scripts/range-server.mjs 5174",
+      url: "http://localhost:5174/__stats",
+      reuseExistingServer: !process.env.CI,
+    },
+  ],
 });

@@ -171,9 +171,13 @@ test.describe("viewer", () => {
 
   test("intrinsic /Rotate pages use rotated page coordinates", async ({ page }) => {
     await openFixture(page, "rotated.pdf");
-    const infos = await page.evaluate(() =>
-      window.readlet?.handle?.document?.pages.map((p) => [p.width, p.height, p.rotation]),
-    );
+    // Page sizes are lazy: loadPageInfo gives the real value of each page.
+    const infos = await page.evaluate(async () => {
+      const doc = window.readlet?.handle?.document;
+      if (!doc) return null;
+      const all = await Promise.all(doc.pages.map((p) => doc.loadPageInfo(p.index)));
+      return all.map((p) => [p.width, p.height, p.rotation]);
+    });
     expect(infos).toEqual([
       [612, 792, 0],
       [792, 612, 90],

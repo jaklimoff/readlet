@@ -36,6 +36,10 @@ export type DocumentState =
 export interface UseDocumentOptions {
   /** The format backend. Keep it stable (create it at module level or with `useMemo`). */
   backend: DocumentBackend;
+  /** Zero-based page to load first (see `LoadDocumentOptions.initialPage`). Read once per load. */
+  initialPage?: number;
+  /** `"lazy"` (default) or `"eager"` page sizes (see `LoadDocumentOptions.pageSizes`). */
+  pageSizes?: "lazy" | "eager";
 }
 
 const IDLE: DocumentState = { status: "idle", document: null, error: null, progress: null };
@@ -64,6 +68,9 @@ export function useDocument(
   const { backend } = options;
   const [state, setState] = useState<DocumentState>(IDLE);
   const progressRef = useRef<LoadProgress | null>(null);
+  // Read once per load: a change alone does not reload the document.
+  const loadOptionsRef = useRef(options);
+  loadOptionsRef.current = options;
 
   useEffect(() => {
     if (src === null || src === undefined) {
@@ -76,9 +83,12 @@ export function useDocument(
     progressRef.current = null;
     setState({ status: "loading", document: null, error: null, progress: null });
     let frame = 0;
+    const { initialPage, pageSizes } = loadOptionsRef.current;
     loadDocument(src, {
       backend,
       signal: controller.signal,
+      ...(initialPage !== undefined ? { initialPage } : {}),
+      ...(pageSizes !== undefined ? { pageSizes } : {}),
       onProgress: (progress) => {
         progressRef.current = progress;
         if (frame || disposed) return;

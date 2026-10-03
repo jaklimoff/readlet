@@ -43,7 +43,6 @@ const LAYER_TRANSFORM: Record<Rotation, string> = {
  */
 export class PageView {
   readonly index: number;
-  readonly info: PageInfo;
   /** The page slot. It always exists, so the layout has the right height. */
   readonly element: HTMLDivElement;
   /** The box that holds the layers in page orientation (user rotation applied by CSS). */
@@ -71,7 +70,6 @@ export class PageView {
     onTextLayer: (view: PageView, layer: TextLayer | null) => void,
   ) {
     this.#doc = doc;
-    this.info = info;
     this.index = info.index;
     this.#settings = settings;
     this.#onTextLayer = onTextLayer;
@@ -94,6 +92,11 @@ export class PageView {
 
   get state(): PageViewState {
     return this.#state;
+  }
+
+  /** The latest information about the page (the size can be estimated until the page loads). */
+  get info(): PageInfo {
+    return this.#doc.getPageInfo(this.index);
   }
 
   /** The text layer, when built. */

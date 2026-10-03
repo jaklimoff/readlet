@@ -33,6 +33,11 @@ export interface DocumentEvents {
   error: ReadletError;
   /** The text of a page became available in the cache. */
   text: number;
+  /**
+   * The real size of a page arrived and replaced an estimate (lazy page sizes). The payload is
+   * the new {@link PageInfo}.
+   */
+  pageinfo: PageInfo;
   destroy: undefined;
 }
 
@@ -51,6 +56,14 @@ export interface LoadDocumentOptions {
   onProgress?: (progress: LoadProgress) => void;
   /** Aborts the load. The promise then rejects. */
   signal?: AbortSignal;
+  /**
+   * `"lazy"` (default): load only the size of `initialPage`; other pages start with that size and
+   * `estimated: true`, and get their real size when they load. `"eager"`: load every page size
+   * before the promise resolves (one backend page load per page).
+   */
+  pageSizes?: "lazy" | "eager";
+  /** Zero-based page whose size is loaded first with lazy page sizes. Default `0`. */
+  initialPage?: number;
 }
 
 /**
@@ -66,7 +79,7 @@ export interface LoadDocumentOptions {
  */
 export class ReadletDocument implements Subscribable<DocumentEvents> {
   readonly #backend: BackendDocument;
-  readonly #pages: readonly PageInfo[];
+  readonly #pages: PageInfo[];
   readonly #emitter = new Emitter<DocumentEvents>();
   readonly #text = new Map<number, PageTextModel>();
   readonly #textPending = new Map<number, Promise<PageTextModel>>();
@@ -76,7 +89,7 @@ export class ReadletDocument implements Subscribable<DocumentEvents> {
   /** @internal Use {@link loadDocument}. */
   constructor(backend: BackendDocument, pages: readonly PageInfo[]) {
     this.#backend = backend;
-    this.#pages = pages;
+    this.#pages = [...pages];
   }
 
   /** Number of pages. */
@@ -84,7 +97,7 @@ export class ReadletDocument implements Subscribable<DocumentEvents> {
     return this.#pages.length;
   }
 
-  /** Static information about every page. */
+  /** Information about every page. Estimated sizes are replaced as pages load. */
   get pages(): readonly PageInfo[] {
     return this.#pages;
   }
@@ -95,7 +108,7 @@ export class ReadletDocument implements Subscribable<DocumentEvents> {
   }
 
   /**
-   * Static information about one page. Throws a `RangeError` for an index outside the document.
+   * Information about one page. Throws a `RangeError` for an index outside the document.
    *
    * @example
    * ```ts
@@ -118,7 +131,34 @@ export class ReadletDocument implements Subscribable<DocumentEvents> {
    */
   getPage(index: number): Promise<BackendPage> {
     this.#assertAlive();
-    return this.#backend.getPage(index);
+    return this.#backend.getPage(index).then((page) => {
+      this.#recordPage(page);
+      return page;
+    });
+  }
+
+  /**
+   * The real information about one page. Loads the page when its size is still estimated.
+   *
+   * @example
+   * ```ts
+   * const { width, height } = await doc.loadPageInfo(42);
+   * ```
+   */
+  async loadPageInfo(index: number): Promise<PageInfo> {
+    const info = this.getPageInfo(index);
+    if (!info.estimated) return info;
+    await this.getPage(index);
+    return this.getPageInfo(index);
+  }
+
+  /** Replaces an estimated page size with the real one and reports the change. */
+  #recordPage(page: BackendPage): void {
+    const old = this.#pages[page.index];
+    if (!old?.estimated || this.#destroyed) return;
+    const info = pageInfoOf(page);
+    this.#pages[page.index] = info;
+    this.#emitter.emit("pageinfo", info);
   }
 
   /**
@@ -137,7 +177,7 @@ export class ReadletDocument implements Subscribable<DocumentEvents> {
     if (!pending) {
       pending = (async () => {
         this.#assertAlive();
-        const page = await this.#backend.getPage(index);
+        const page = await this.getPage(index);
         const items = await page.getTextItems();
         const model: PageTextModel = { items, normalised: normalisePageText(items) };
         if (!this.#destroyed) {
@@ -309,7 +349,7 @@ export async function loadDocument(
   source: DocumentSource,
   options: LoadDocumentOptions,
 ): Promise<ReadletDocument> {
-  const { backend, onProgress, signal } = options;
+  const { backend, onProgress, signal, pageSizes = "lazy" } = options;
   const loadOptions: BackendLoadOptions = {};
   if (onProgress) loadOptions.onProgress = onProgress;
   if (signal) loadOptions.signal = signal;
@@ -320,16 +360,35 @@ export async function loadDocument(
     throw toReadletError(error);
   }
   try {
-    const pages = await Promise.all(
-      Array.from({ length: backendDoc.pageCount }, async (_, index): Promise<PageInfo> => {
-        const page = await backendDoc.getPage(index);
-        return { index, width: page.width, height: page.height, rotation: page.rotation };
-      }),
-    );
+    const count = backendDoc.pageCount;
+    let pages: PageInfo[];
+    if (pageSizes === "eager" || count === 0) {
+      pages = await Promise.all(
+        Array.from({ length: count }, async (_, index) =>
+          pageInfoOf(await backendDoc.getPage(index)),
+        ),
+      );
+    } else {
+      const first = Math.min(Math.max(0, Math.trunc(options.initialPage ?? 0)), count - 1);
+      const known = pageInfoOf(await backendDoc.getPage(first));
+      pages = Array.from({ length: count }, (_, index) =>
+        index === first ? known : { ...known, index, estimated: true },
+      );
+    }
     if (signal?.aborted) throw new ReadletError("network", "Load was aborted.");
     return new ReadletDocument(backendDoc, pages);
   } catch (error) {
     await backendDoc.destroy().catch(() => {});
     throw toReadletError(error);
   }
+}
+
+function pageInfoOf(page: BackendPage): PageInfo {
+  return {
+    index: page.index,
+    width: page.width,
+    height: page.height,
+    rotation: page.rotation,
+    estimated: false,
+  };
 }

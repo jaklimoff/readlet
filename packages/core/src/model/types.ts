@@ -14,10 +14,13 @@
 export type DocumentSource = string | URL | ArrayBuffer | Uint8Array | Blob;
 
 /**
- * Static information about one page.
+ * Information about one page.
  *
  * `width` and `height` are in page coordinates: PDF points (1/72 inch) with the page's intrinsic
  * rotation applied, at scale 1. They do not change with zoom or user rotation.
+ *
+ * With lazy page sizes (the default), pages that have not loaded yet have `estimated: true` and
+ * the size of the first loaded page. The document emits `pageinfo` when the real value arrives.
  *
  * @example
  * ```ts
@@ -34,6 +37,8 @@ export interface PageInfo {
   readonly height: number;
   /** The intrinsic rotation that the document itself sets on the page. */
   readonly rotation: Rotation;
+  /** `true` while the size is a guess because the page has not loaded yet. */
+  readonly estimated: boolean;
 }
 
 /**
