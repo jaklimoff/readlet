@@ -9,13 +9,13 @@ Current target: **v0.1 working in desktop Chrome (Chromium).** Firefox, Safari a
 after the Chrome milestone.
 
 **Status 2026-10-03:** desktop Chromium, Firefox and WebKit work. All five selection acceptance
-tests from the brief pass in all three browsers (65 browser test runs, 4 heap tests are
-Chromium-only), plus 52 unit tests.
+tests from the brief pass in all three desktop browsers and in Pixel 7 / iPhone 15 emulation
+(120 browser test runs: 114 pass, 6 skipped; the heap tests run only in Chromium), plus 52 unit tests.
 
 | Check                                     | Result                                  |
 | ----------------------------------------- | --------------------------------------- |
 | Unit tests / coverage on `core/src/model` | 52 pass / 98.6% statements, 100% lines  |
-| Playwright (Chromium, Firefox, WebKit)    | 65 pass, 4 skipped (CDP heap tests)     |
+| Playwright, 5 projects (3 desktop, 2 mobile) | 114 pass, 6 skipped (CDP heap tests)  |
 | Heap, 1,000 pages after a full scroll     | about 17–23 MB (budget 200 MB)          |
 | Load/destroy 500 pages × 10               | +13% over baseline (budget 20%), flat   |
 | Scroll p95 frame, 1,000 pages             | under 50 ms (asserted)                  |
@@ -28,7 +28,7 @@ Chromium-only), plus 52 unit tests.
   browsers; small.
 - Firefox snaps a drag end at a character edge a fraction of a pixel differently from its caret
   hit test. Tests use points close to the edge; users do not notice.
-- Mobile touch selection is not tested.
+- Real-device touch selection (long-press, handles) is not tested; only emulation.
 - The text layer measures the ascent of the browser fallback font (like pdf.js), but
   `rangeToRects` uses the ascent of the PDF font. Highlights and the native selection colour can
   differ by 1–2 px vertically. This is intentional (highlights match the visible glyphs).
@@ -115,10 +115,14 @@ Chromium-only), plus 52 unit tests.
       zero config, dev (with dependency pre-bundling) and production build both render.
 - [x] Bundle size check: core < 60 KB gz (without pdf.js), react < 10 KB gz
 - [x] Firefox and WebKit pass (desktop, Playwright Firefox 155 / WebKit 26.6)
-- [ ] Mobile (touch selection) checks
+- [~] Mobile: Pixel 7 and iPhone 15 emulation pass every test, including native selection changes
+      as touch handles make them. A real long-press on a real device is not tested (Playwright
+      cannot emulate the OS selection UI).
 
 ## Log
 
+- 2026-10-03 — Added mobile emulation projects. The example app is now responsive (the viewer had
+  zero width on a phone). Added a test for native selection changes (touch handles).
 - 2026-10-03 — Added Firefox and WebKit. Two cross-page selection bugs found and fixed
   (decision 0005): Firefox ignores `scaleX` on spans when a drag continues on another page (spans
   now use letter-spacing), and absolutely positioned page slots made the selection jump to page 1
