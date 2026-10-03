@@ -164,3 +164,18 @@ test("native selection changes (as from touch selection handles) are tracked", a
     /^aardvark slept under the bakery counter every\s+afternoon\.$/,
   );
 });
+
+test("resize keeps the range", async ({ page }) => {
+  await openFixture(page, "single-column.pdf");
+  const from = await textPoint(page, 0, "quick", "start");
+  const to = await textPoint(page, 0, "herons", "end");
+  await drag(page, from, to);
+  const before = await currentRange(page);
+  expect(before).not.toBeNull();
+  const size = page.viewportSize()!;
+  await page.setViewportSize({ width: Math.round(size.width * 0.7), height: size.height });
+  await expect.poll(() => page.evaluate(() => window.readlet?.handle?.viewport?.scale)).not.toBe(0);
+  await page.waitForTimeout(300);
+  expect(await currentRange(page)).toEqual(before);
+  expect(await domRange(page)).toEqual(before);
+});

@@ -10,12 +10,12 @@ after the Chrome milestone.
 
 **Status 2026-10-03:** desktop Chromium, Firefox and WebKit work. All five selection acceptance
 tests from the brief pass in all three desktop browsers and in Pixel 7 / iPhone 15 emulation
-(120 browser test runs: 114 pass, 6 skipped; the heap tests run only in Chromium), plus 52 unit tests.
+(140 browser test runs: 134 pass, 6 skipped; the heap tests run only in Chromium), plus 52 unit tests.
 
 | Check                                     | Result                                  |
 | ----------------------------------------- | --------------------------------------- |
 | Unit tests / coverage on `core/src/model` | 52 pass / 98.6% statements, 100% lines  |
-| Playwright, 5 projects (3 desktop, 2 mobile) | 114 pass, 6 skipped (CDP heap tests)  |
+| Playwright, 5 projects (3 desktop, 2 mobile) | 134 pass, 6 skipped (CDP heap tests)  |
 | Heap, 1,000 pages after a full scroll     | about 17–23 MB (budget 200 MB)          |
 | Load/destroy 500 pages × 10               | +13% over baseline (budget 20%), flat   |
 | Scroll p95 frame, 1,000 pages             | under 50 ms (asserted)                  |
@@ -33,12 +33,12 @@ tests from the brief pass in all three desktop browsers and in Pixel 7 / iPhone 
   `rangeToRects` uses the ascent of the PDF font. Highlights and the native selection colour can
   differ by 1–2 px vertically. This is intentional (highlights match the visible glyphs).
 - Chrome's "minimum font size" setting can enlarge very small invisible text. pdf.js has a
-  workaround; Readlet does not yet.
+  workaround; Readlet does not yet. The setting could not be reproduced in Playwright's Chromium
+  (the profile preference has no effect), so no change was made without a test.
+- React 18 is a declared peer but only React 19 is tested.
 - `goToPage(index, { top })` ignores `top` when the user rotation is 90° or 270°.
 - All page sizes are read at load (one `getPage` per page). Fast enough for 1,000 pages; a lazy
   size scheme can come later if needed.
-- The built worker chunk contains a comment with the absolute build path (esbuild namespace
-  comment). Cosmetic; fix before publishing.
 - No React unit tests yet; React is covered by the browser tests through the example app.
 - Vertical (`ttb`) text has no fixture yet.
 
@@ -103,14 +103,14 @@ tests from the brief pass in all three desktop browsers and in Pixel 7 / iPhone 
 - [x] Zoom 100% → 200% with a selection: range unchanged
 - [x] Serialise → reload → `setRange` → same rects
 - [x] Double click a word: range covers exactly that word
-- [~] Load from URL / ArrayBuffer / Blob / File and error events (done); progress event not asserted yet
+- [x] Load from URL / ArrayBuffer / Blob / File; progress and error events
 - [x] Virtualisation: 1,000 pages, heap < 200 MB
 - [x] Load/destroy 500 pages × 10: heap back to baseline ± 20%
 - [x] Rotation, zoom modes, outline, links, page mode navigation
 
 ## M7 — Release readiness
 
-- [~] TSDoc with an example on every export (most done; audit open)
+- [x] TSDoc with an example on every export (`pnpm tsdoc` checks it in CI)
 - [~] README with a 30-second quickstart. Verified: packed tarballs in a fresh Vite 8 React app,
       zero config, dev (with dependency pre-bundling) and production build both render.
 - [x] Bundle size check: core < 60 KB gz (without pdf.js), react < 10 KB gz
@@ -121,6 +121,9 @@ tests from the brief pass in all three desktop browsers and in Pixel 7 / iPhone 
 
 ## Log
 
+- 2026-10-03 — TSDoc audit with a CI check; progress event test (in-memory sources now report
+  exactly one complete event); resize test; axe accessibility test (no violations); pdf.js logs
+  errors only; no build paths in the dist files.
 - 2026-10-03 — Added mobile emulation projects. The example app is now responsive (the viewer had
   zero width on a phone). Added a test for native selection changes (touch handles).
 - 2026-10-03 — Added Firefox and WebKit. Two cross-page selection bugs found and fixed

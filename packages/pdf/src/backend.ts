@@ -479,6 +479,8 @@ export function createPdfBackend(options: PdfBackendOptions = {}): DocumentBacke
           wasmUrl: `${assets}/wasm/`,
           iccUrl: `${assets}/iccs/`,
           enableXfa: false,
+          // Errors reach the host as typed ReadletErrors; pdf.js must not log to the console.
+          verbosity: pdfjs.VerbosityLevel.ERRORS,
         });
         if (onProgress && "url" in params) {
           task.onProgress = ({ loaded, total }: { loaded: number; total?: number }) =>
