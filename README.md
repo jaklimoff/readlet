@@ -4,8 +4,9 @@ Open source (MIT) TypeScript library to show documents in the browser. It starts
 Pages render on canvas. A selectable text layer sits on top, and the selection comes out as
 stable, serialisable `TextRange`s that your app can store, sync or annotate.
 
-> Status: pre-release (v0.1 in progress). Tested in Chromium, Firefox and WebKit (Safari) on
-> desktop, and in Android and iPhone emulation. See [PROGRESS.md](PROGRESS.md).
+> Status: **0.1.0** on npm (`@readletjs/core`, `@readletjs/pdf`, `@readletjs/react`). The API
+> can still change before 1.0. Tested in Chromium, Firefox and WebKit (Safari) on desktop, and
+> in Android and iPhone emulation. See [PROGRESS.md](PROGRESS.md).
 
 ## Quickstart (React)
 

@@ -24,7 +24,8 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          # npm@latest (12) needs Node 22.22 or later; Node 24 avoids an old 22.x.
+          node-version: 24
           cache: pnpm
           registry-url: https://registry.npmjs.org
       # Trusted Publishing needs npm 11.5.1 or later.

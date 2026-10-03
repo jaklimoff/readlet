@@ -132,7 +132,10 @@ the next pages early. Use `prefetch: true` when users jump around a lot in files
       decision 0007); packages renamed to `@readletjs/*`
 - [x] Release workflow: Changesets version PR, `scripts/release.mjs`, Trusted Publishing,
       `RELEASING.md`; package READMEs; clean published `exports`
-- [ ] First publish (local, by the owner) and Trusted Publishing setup — after the API review
+- [x] First publish: 0.1.0 of all three packages on npm (2026-10-03). Checked from npm in a fresh
+      Vite 8 + React 19 app: README quickstart as is, dev and production build, selection works,
+      no console messages
+- [ ] Trusted Publishing for the three packages (owner, on npmjs.com)
 - [x] API review before the first publish (decision 0008): internals removed from the exports
       and stripped from the published types; `aborted` error code; `textload` event; core is a
       peer of the React package; React re-exports its types; consumer type check on the built
@@ -152,6 +155,10 @@ the next pages early. Use `prefetch: true` when users jump around a lot in files
       cannot emulate the OS selection UI).
 
 ## Log
+
+- 2026-10-03 — Released 0.1.0. The first `npm publish` failed (E403: the npm account had no 2FA);
+  after 2FA was turned on it worked. npm processes new packages for about 3 minutes before they
+  can be installed (a `0.0.0-stage` placeholder shows meanwhile).
 
 - 2026-10-03 — API review (decision 0008) and React 18 job. All desktop tests pass with React
   18.3.1. `goToPage({ top })` at 90°/270° is correct as it is (documented). Vertical text is
