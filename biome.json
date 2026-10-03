@@ -8,7 +8,8 @@
       "!**/coverage",
       "!fixtures",
       "!test-results",
-      "!playwright-report"
+      "!playwright-report",
+      "!scripts/.*.mjs"
     ]
   },
   "formatter": {
