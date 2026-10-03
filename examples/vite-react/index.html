@@ -7,6 +7,20 @@
     <style>
       html, body, #root { height: 100%; margin: 0; }
       body { font: 14px/1.4 system-ui, sans-serif; }
+      .app { display: flex; flex-direction: column; height: 100%; }
+      .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px; border-bottom: 1px solid #ccc; }
+      .body { display: flex; flex: 1; min-height: 0; }
+      .outline { width: 200px; overflow: auto; border-right: 1px solid #ccc; padding: 8px; }
+      .main { flex: 1; min-width: 0; background: #eee; }
+      .info { width: 260px; overflow: auto; border-left: 1px solid #ccc; padding: 8px; }
+      /* Phones: the viewer takes the full width; the side panels go below it. */
+      @media (max-width: 800px) {
+        .toolbar { gap: 4px; padding: 4px; font-size: 13px; }
+        .toolbar input[type="file"], .toolbar .wide { display: none; }
+        .body { flex-direction: column; }
+        .main { order: 0; flex: 1; min-height: 0; }
+        .outline, .info { order: 1; width: auto; max-height: 20vh; border: 0; border-top: 1px solid #ccc; }
+      }
     </style>
   </head>
   <body>

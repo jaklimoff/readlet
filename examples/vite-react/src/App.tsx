@@ -57,16 +57,8 @@ export function App() {
   const selectionText = range ? (ref.current?.selection?.rangeToText(range) ?? "") : "";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <header
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 8,
-          padding: 8,
-          borderBottom: "1px solid #ccc",
-        }}
-      >
+    <div className="app">
+      <header className="toolbar">
         <select
           aria-label="Fixture"
           value={typeof src === "string" ? src : ""}
@@ -143,6 +135,7 @@ export function App() {
         </button>
         <button
           type="button"
+          className="wide"
           disabled={!range}
           onClick={() => localStorage.setItem("readlet:range", JSON.stringify(range))}
         >
@@ -150,6 +143,7 @@ export function App() {
         </button>
         <button
           type="button"
+          className="wide"
           onClick={() => {
             const saved: unknown = JSON.parse(localStorage.getItem("readlet:range") ?? "null");
             if (isTextRange(saved)) ref.current?.selection?.setRange(saved);
@@ -159,15 +153,12 @@ export function App() {
         </button>
         <span data-testid="status">{status}</span>
       </header>
-      <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
-        <nav
-          aria-label="Outline"
-          style={{ width: 200, overflow: "auto", borderRight: "1px solid #ccc", padding: 8 }}
-        >
+      <div className="body">
+        <nav aria-label="Outline" className="outline">
           <strong>Outline</strong>
           <OutlineList items={outline} onPick={(i) => ref.current?.goToPage(i)} />
         </nav>
-        <main style={{ flex: 1, minWidth: 0, background: "#eee" }}>
+        <main className="main">
           <Viewer
             ref={(h) => {
               ref.current = h;
@@ -197,7 +188,7 @@ export function App() {
             }}
           />
         </main>
-        <aside style={{ width: 260, overflow: "auto", borderLeft: "1px solid #ccc", padding: 8 }}>
+        <aside className="info">
           <strong>Selection</strong>
           <pre data-testid="range" style={{ whiteSpace: "pre-wrap" }}>
             {JSON.stringify(range)}

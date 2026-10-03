@@ -138,3 +138,29 @@ test("pointer in the gap between pages does not jump the selection to page 1", a
   expect(range?.start.page).toBe(2);
   expect(range?.end.page).toBeGreaterThanOrEqual(2);
 });
+
+test("native selection changes (as from touch selection handles) are tracked", async ({ page }) => {
+  await openFixture(page, "single-column.pdf");
+  // Touch selection handles change the DOM selection directly; no mouse events.
+  await page.evaluate(() => {
+    const spans = [...document.querySelectorAll('.rl-text-layer[data-page-index="0"] span')];
+    const span = spans.find((s) => s.textContent?.includes("aardvark")) as HTMLElement;
+    const node = span.firstChild as Text;
+    const i = node.data.indexOf("aardvark");
+    document.getSelection()?.setBaseAndExtent(node, i, node, i + "aardvark".length);
+  });
+  const range = await currentRange(page);
+  expect(range).not.toBeNull();
+  expect(await rangeText(page, range!)).toBe("aardvark");
+  // Extend the selection with the "handle" to the end of the word "afternoon.".
+  await page.evaluate(() => {
+    const spans = [...document.querySelectorAll('.rl-text-layer[data-page-index="0"] span')];
+    const span = spans.find((s) => s.textContent?.includes("afternoon.")) as HTMLElement;
+    const node = span.firstChild as Text;
+    document.getSelection()?.extend(node, node.data.indexOf("afternoon.") + "afternoon.".length);
+  });
+  const extended = await currentRange(page);
+  expect(await rangeText(page, extended!)).toMatch(
+    /^aardvark slept under the bakery counter every\s+afternoon\.$/,
+  );
+});
