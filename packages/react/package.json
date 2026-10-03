@@ -1,6 +1,6 @@
 {
   "name": "@readletjs/react",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "React bindings for Readlet.",
   "keywords": [
     "pdf",
