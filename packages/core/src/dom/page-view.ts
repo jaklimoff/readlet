@@ -1,5 +1,5 @@
 import { isReadletError } from "../model/errors";
-import { PT_TO_CSS, effectiveDpr, rotateSize } from "../model/layout";
+import { effectiveDpr, PT_TO_CSS, rotateSize } from "../model/layout";
 import type { PageInfo, PageLink, Rotation } from "../model/types";
 import type { ReadletDocument } from "./document";
 import { CLASS, TextLayer } from "./text-layer";
@@ -113,7 +113,11 @@ export class PageView {
     ls.height = `${this.info.height * scale * PT_TO_CSS}px`;
     ls.setProperty("--rl-scale", String(scale * PT_TO_CSS));
     ls.transform = LAYER_TRANSFORM[rotation];
-    if (this.#pending && this.#pending.key !== `${scale}|${rotation}` && this.#state === "rendering") {
+    if (
+      this.#pending &&
+      this.#pending.key !== `${scale}|${rotation}` &&
+      this.#state === "rendering"
+    ) {
       // The running render is for old settings: stop it so that the next render starts at once.
       this.#generation++;
       this.#abort?.abort();
@@ -140,7 +144,9 @@ export class PageView {
   get needsRender(): boolean {
     if (!this.upToDate) return true;
     if (this.#layersFailed) return false;
-    return (this.#settings.textLayer && !this.#textLayer) || (this.#settings.links && !this.#linkLayer);
+    return (
+      (this.#settings.textLayer && !this.#textLayer) || (this.#settings.links && !this.#linkLayer)
+    );
   }
 
   /**
@@ -169,7 +175,12 @@ export class PageView {
       void this.#ensureLayers();
 
       const css = this.cssSize;
-      const dpr = effectiveDpr(globalThis.devicePixelRatio ?? 1, css.width, css.height, maxCanvasPixels);
+      const dpr = effectiveDpr(
+        globalThis.devicePixelRatio ?? 1,
+        css.width,
+        css.height,
+        maxCanvasPixels,
+      );
       const canvas = document.createElement("canvas");
       canvas.className = CLASS.canvas;
       canvas.setAttribute("aria-hidden", "true");
@@ -191,7 +202,11 @@ export class PageView {
       this.element.dataset.rendered = "true";
     } catch (error) {
       if (generation === this.#generation) this.#state = this.#canvas ? "rendered" : "idle";
-      if (isReadletError(error) && (error.code === "render-cancelled" || error.code === "destroyed")) return;
+      if (
+        isReadletError(error) &&
+        (error.code === "render-cancelled" || error.code === "destroyed")
+      )
+        return;
       this.#doc.reportError(error);
     }
   }

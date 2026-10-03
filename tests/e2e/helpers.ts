@@ -1,10 +1,10 @@
-import { type Page, expect } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 import type { PageRect, TextRange } from "@readlet/core";
 
 export async function openFixture(page: Page, file: string, query = ""): Promise<void> {
   await page.goto(`/?file=${file}${query}`);
   await expect(page.getByTestId("status")).toHaveText("ready");
-  await page.waitForSelector(".rl-page[data-rendered] .rl-text-layer span");
+  await page.locator(".rl-page[data-rendered] .rl-text-layer span").first().waitFor();
 }
 
 /** Client coordinates of the start or end of `text` inside the text layer of page `pageIndex`. */
@@ -41,7 +41,11 @@ export async function textPoint(
   return point;
 }
 
-export async function drag(page: Page, from: { x: number; y: number }, to: { x: number; y: number }) {
+export async function drag(
+  page: Page,
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+) {
   await page.mouse.move(from.x, from.y);
   await page.mouse.down();
   await page.mouse.move((from.x + to.x) / 2, (from.y + to.y) / 2, { steps: 8 });
@@ -51,7 +55,9 @@ export async function drag(page: Page, from: { x: number; y: number }, to: { x: 
 
 /** Waits for the selection change (one animation frame) and returns the manager's range. */
 export async function currentRange(page: Page): Promise<TextRange | null> {
-  await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+  await page.evaluate(
+    () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))),
+  );
   return page.evaluate(() => window.readlet?.handle?.selection?.getRange() ?? null);
 }
 

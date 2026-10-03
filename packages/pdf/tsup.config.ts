@@ -7,12 +7,15 @@ const require = createRequire(import.meta.url);
 export default defineConfig({
   entry: ["src/index.ts"],
   format: ["esm", "cjs"],
-  dts: true,
+  // tsup sets the deprecated `baseUrl` option for the d.ts build; TypeScript 6 warns about it.
+  dts: { compilerOptions: { ignoreDeprecations: "6.0" } },
   splitting: true,
   sourcemap: true,
   clean: true,
   target: "es2022",
   external: ["pdfjs-dist", "@readlet/core"],
+  // The worker source is inlined (decision 0004), although pdfjs-dist is a dependency.
+  noExternal: [/\?raw$/],
   esbuildPlugins: [
     {
       // Supports Vite-style `?raw` imports so that src works in Vite and in tsup.

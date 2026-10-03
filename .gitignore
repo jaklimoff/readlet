@@ -9,5 +9,4 @@ playwright-report
 
 # Fixture generator font cache
 scripts/.cache
-scripts/.shot.mjs
-scripts/.align.mjs
+scripts/.*.mjs

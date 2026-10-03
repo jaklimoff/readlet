@@ -196,11 +196,17 @@ export class SelectionManager implements Subscribable<SelectionEvents> {
     return isCollapsed(range) ? null : range;
   }
 
-  on<K extends keyof SelectionEvents>(type: K, listener: (payload: SelectionEvents[K]) => void): () => void {
+  on<K extends keyof SelectionEvents>(
+    type: K,
+    listener: (payload: SelectionEvents[K]) => void,
+  ): () => void {
     return this.#emitter.on(type, listener);
   }
 
-  off<K extends keyof SelectionEvents>(type: K, listener: (payload: SelectionEvents[K]) => void): void {
+  off<K extends keyof SelectionEvents>(
+    type: K,
+    listener: (payload: SelectionEvents[K]) => void,
+  ): void {
     this.#emitter.off(type, listener);
   }
 

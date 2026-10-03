@@ -37,7 +37,12 @@ export class Emitter<Events extends object> implements Subscribable<Events> {
   #listeners = new Map<keyof Events, Set<Listener<never>>>();
   #onListenerError: (error: unknown) => void;
 
-  constructor(onListenerError: (error: unknown) => void = (error) => queueMicrotask(() => { throw error; })) {
+  constructor(
+    onListenerError: (error: unknown) => void = (error) =>
+      queueMicrotask(() => {
+        throw error;
+      }),
+  ) {
     this.#onListenerError = onListenerError;
   }
 

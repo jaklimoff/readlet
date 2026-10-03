@@ -65,7 +65,10 @@ export function isReadletError(value: unknown): value is ReadletError {
  * emitter.emit("error", toReadletError(e, "unknown"));
  * ```
  */
-export function toReadletError(value: unknown, fallback: ReadletErrorCode = "unknown"): ReadletError {
+export function toReadletError(
+  value: unknown,
+  fallback: ReadletErrorCode = "unknown",
+): ReadletError {
   if (value instanceof ReadletError) return value;
   const message = value instanceof Error ? value.message : String(value);
   return new ReadletError(fallback, message, { cause: value });

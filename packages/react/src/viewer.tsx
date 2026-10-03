@@ -16,8 +16,8 @@ import type {
 import {
   type CSSProperties,
   type ForwardedRef,
-  type ReactNode,
   forwardRef,
+  type ReactNode,
   useEffect,
   useImperativeHandle,
   useRef,
@@ -102,8 +102,15 @@ function ViewerImpl(props: ViewerProps, ref: ForwardedRef<ViewerHandle>): ReactN
     style,
     renderPageOverlay,
   } = props;
-  const containerRef = useRef<HTMLDivElement>(null);
-  const callbacks = useRef({ onLoad, onError, onProgress, onPageChange, onSelectionChange, onLinkClick });
+  const containerRef = useRef<HTMLElement>(null);
+  const callbacks = useRef({
+    onLoad,
+    onError,
+    onProgress,
+    onPageChange,
+    onSelectionChange,
+    onLinkClick,
+  });
   callbacks.current = { onLoad, onError, onProgress, onPageChange, onSelectionChange, onLinkClick };
 
   const doc = useDocument(src, { backend });
@@ -147,7 +154,7 @@ function ViewerImpl(props: ViewerProps, ref: ForwardedRef<ViewerHandle>): ReactN
   );
 
   return (
-    <div
+    <section
       ref={containerRef}
       className={className}
       style={{ height: "100%", overflow: "auto", position: "relative", ...style }}
@@ -157,15 +164,17 @@ function ViewerImpl(props: ViewerProps, ref: ForwardedRef<ViewerHandle>): ReactN
     >
       {doc.status === "loading" ? loading : null}
       {doc.status === "error" ? (typeof error === "function" ? error(doc.error) : error) : null}
-      {vp.viewport
+      {vp.viewport && ((highlights && highlights.length > 0) || renderPageOverlay)
         ? vp.visiblePages.map((p) => (
             <Page key={p.index} page={p} viewport={vp.viewport as Viewport}>
-              {highlights && highlights.length > 0 ? <HighlightLayer highlights={highlights} /> : null}
+              {highlights && highlights.length > 0 ? (
+                <HighlightLayer highlights={highlights} />
+              ) : null}
               {renderPageOverlay?.(p.index)}
             </Page>
           ))
         : null}
-    </div>
+    </section>
   );
 }
 

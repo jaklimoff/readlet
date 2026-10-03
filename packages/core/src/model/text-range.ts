@@ -136,7 +136,10 @@ export function rangeOnPage(
  * rangeToText(range, (i) => doc.getCachedText(i)?.text);
  * ```
  */
-export function rangeToText(range: TextRange, getText: (page: number) => string | undefined): string {
+export function rangeToText(
+  range: TextRange,
+  getText: (page: number) => string | undefined,
+): string {
   const parts: string[] = [];
   for (let page = range.start.page; page <= range.end.page; page++) {
     const text = getText(page);

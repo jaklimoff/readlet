@@ -52,7 +52,10 @@ export interface ColumnLayout {
  * const layout = columnLayout(sizes, { gap: 16, padding: 16 });
  * ```
  */
-export function columnLayout(sizes: readonly Size[], opts: { gap: number; padding: number }): ColumnLayout {
+export function columnLayout(
+  sizes: readonly Size[],
+  opts: { gap: number; padding: number },
+): ColumnLayout {
   const tops: number[] = [];
   let y = opts.padding;
   let maxWidth = 0;
@@ -170,7 +173,9 @@ export function resolveScale(
         : (pageSizes[currentPage] ?? pageSizes[0] ?? { width: 1, height: 1 });
     const byWidth = container.width / (ref.width * PT_TO_CSS);
     scale =
-      zoom === "fit-width" ? byWidth : Math.min(byWidth, container.height / (ref.height * PT_TO_CSS));
+      zoom === "fit-width"
+        ? byWidth
+        : Math.min(byWidth, container.height / (ref.height * PT_TO_CSS));
   }
   if (!Number.isFinite(scale) || scale <= 0) scale = 1;
   return Math.min(limits.max, Math.max(limits.min, scale));
@@ -185,7 +190,12 @@ export function resolveScale(
  * const dpr = effectiveDpr(window.devicePixelRatio, cssW, cssH, 16_777_216);
  * ```
  */
-export function effectiveDpr(dpr: number, cssWidth: number, cssHeight: number, maxPixels: number): number {
+export function effectiveDpr(
+  dpr: number,
+  cssWidth: number,
+  cssHeight: number,
+  maxPixels: number,
+): number {
   let ratio = Math.min(3, Math.max(1, Number.isFinite(dpr) ? dpr : 1));
   const area = cssWidth * cssHeight;
   if (area > 0 && area * ratio * ratio > maxPixels) {

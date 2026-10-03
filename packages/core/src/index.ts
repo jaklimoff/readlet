@@ -1,4 +1,29 @@
 // Model: pure logic, no DOM.
+
+// DOM: rendering, text layer, viewport, selection.
+export {
+  type DocumentEvents,
+  type LoadDocumentOptions,
+  loadDocument,
+  ReadletDocument,
+} from "./dom/document";
+export { canvasMeasurer } from "./dom/measure";
+export { PageView, type PageViewState } from "./dom/page-view";
+export {
+  createSelectionManager,
+  type SelectionEvents,
+  SelectionManager,
+  type SelectionManagerOptions,
+} from "./dom/selection";
+export { baseCss, injectStyles } from "./dom/styles";
+export { CLASS as classNames, TextLayer } from "./dom/text-layer";
+export {
+  createViewport,
+  type GoToPageOptions,
+  Viewport,
+  type ViewportEvents,
+  type ViewportOptions,
+} from "./dom/viewport";
 export type {
   BackendDocument,
   BackendLoadOptions,
@@ -10,16 +35,21 @@ export type {
   TextItem,
 } from "./model/backend";
 export { Emitter, type Listener, type Subscribable } from "./model/emitter";
-export { ReadletError, type ReadletErrorCode, isReadletError, toReadletError } from "./model/errors";
 export {
-  PT_TO_CSS,
+  isReadletError,
+  ReadletError,
+  type ReadletErrorCode,
+  toReadletError,
+} from "./model/errors";
+export {
   type ColumnLayout,
-  type Size,
   columnLayout,
   effectiveDpr,
   mostVisiblePage,
+  PT_TO_CSS,
   resolveScale,
   rotateSize,
+  type Size,
   visiblePages as visiblePagesInLayout,
 } from "./model/layout";
 export { type ItemGeometry, itemGeometry } from "./model/text-geometry";
@@ -41,7 +71,12 @@ export {
   rangesEqual,
   rangeToText,
 } from "./model/text-range";
-export { type PageTextModel, type TextMeasurer, pageRangeRects, rangeToRects } from "./model/text-rects";
+export {
+  type PageTextModel,
+  pageRangeRects,
+  rangeToRects,
+  type TextMeasurer,
+} from "./model/text-rects";
 export type {
   DocumentSource,
   Highlight,
@@ -55,28 +90,3 @@ export type {
   ViewMode,
   ZoomMode,
 } from "./model/types";
-
-// DOM: rendering, text layer, viewport, selection.
-export {
-  type DocumentEvents,
-  type LoadDocumentOptions,
-  ReadletDocument,
-  loadDocument,
-} from "./dom/document";
-export { canvasMeasurer } from "./dom/measure";
-export { PageView, type PageViewState } from "./dom/page-view";
-export {
-  type SelectionEvents,
-  SelectionManager,
-  type SelectionManagerOptions,
-  createSelectionManager,
-} from "./dom/selection";
-export { baseCss, injectStyles } from "./dom/styles";
-export { CLASS as classNames, TextLayer } from "./dom/text-layer";
-export {
-  type GoToPageOptions,
-  Viewport,
-  type ViewportEvents,
-  type ViewportOptions,
-  createViewport,
-} from "./dom/viewport";

@@ -2,9 +2,9 @@ import {
   type DocumentBackend,
   type DocumentSource,
   type LoadProgress,
+  loadDocument,
   type ReadletDocument,
   type ReadletError,
-  loadDocument,
   toReadletError,
 } from "@readlet/core";
 import { useEffect, useRef, useState } from "react";

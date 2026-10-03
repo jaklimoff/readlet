@@ -14,13 +14,13 @@ import {
   toReadletError,
 } from "@readlet/core";
 import type {
+  PageViewport,
   PDFDocumentLoadingTask,
   PDFDocumentProxy,
   PDFPageProxy,
-  PageViewport,
   PDFWorker as PDFWorkerType,
 } from "pdfjs-dist";
-import type { TextContent, TextItem as PdfTextItem } from "pdfjs-dist/types/src/display/api";
+import type { TextItem as PdfTextItem, TextContent } from "pdfjs-dist/types/src/display/api";
 
 type PdfJs = typeof import("pdfjs-dist");
 
@@ -314,7 +314,12 @@ class PdfDocument implements BackendDocument {
   #pages = new Map<number, Promise<PdfPage>>();
   #destroyed = false;
 
-  constructor(doc: PDFDocumentProxy, task: PDFDocumentLoadingTask, pdfjs: PdfJs, release: () => void) {
+  constructor(
+    doc: PDFDocumentProxy,
+    task: PDFDocumentLoadingTask,
+    pdfjs: PdfJs,
+    release: () => void,
+  ) {
     this.#doc = doc;
     this.#task = task;
     this.#pdfjs = pdfjs;
@@ -323,7 +328,8 @@ class PdfDocument implements BackendDocument {
   }
 
   getPage(index: number): Promise<PdfPage> {
-    if (this.#destroyed) return Promise.reject(new ReadletError("destroyed", "Document was destroyed."));
+    if (this.#destroyed)
+      return Promise.reject(new ReadletError("destroyed", "Document was destroyed."));
     let page = this.#pages.get(index);
     if (!page) {
       page = this.#doc.getPage(index + 1).then(
@@ -343,10 +349,15 @@ class PdfDocument implements BackendDocument {
       let explicit: unknown = dest;
       if (typeof dest === "string") explicit = await this.#doc.getDestination(dest);
       if (!Array.isArray(explicit) || explicit.length === 0) return { pageIndex: null, top: null };
-      const [ref, kind, ...args] = explicit as [unknown, { name?: string } | undefined, ...unknown[]];
+      const [ref, kind, ...args] = explicit as [
+        unknown,
+        { name?: string } | undefined,
+        ...unknown[],
+      ];
       let pageIndex: number;
       if (Number.isInteger(ref)) pageIndex = ref as number;
-      else if (ref && typeof ref === "object") pageIndex = await this.#doc.getPageIndex(ref as never);
+      else if (ref && typeof ref === "object")
+        pageIndex = await this.#doc.getPageIndex(ref as never);
       else return { pageIndex: null, top: null };
       if (pageIndex < 0 || pageIndex >= this.pageCount) return { pageIndex: null, top: null };
 
@@ -383,7 +394,9 @@ class PdfDocument implements BackendDocument {
     const convert = async (items: typeof raw): Promise<OutlineItem[]> =>
       Promise.all(
         (items ?? []).map(async (item) => {
-          const target = item.dest ? await this.resolveDest(item.dest) : { pageIndex: null, top: null };
+          const target = item.dest
+            ? await this.resolveDest(item.dest)
+            : { pageIndex: null, top: null };
           return {
             title: item.title,
             pageIndex: target.pageIndex,
@@ -432,10 +445,9 @@ export function createPdfBackend(options: PdfBackendOptions = {}): DocumentBacke
       const pdfjs = await loadPdfJs();
       const params = await sourceToParams(source, onProgress);
       const worker = await host.acquire(pdfjs);
-      const assets = (options.assetsUrl ?? `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}`).replace(
-        /\/+$/,
-        "",
-      );
+      const assets = (
+        options.assetsUrl ?? `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}`
+      ).replace(/\/+$/, "");
       let task: PDFDocumentLoadingTask | null = null;
       const onAbort = () => void task?.destroy();
       try {
@@ -461,7 +473,8 @@ export function createPdfBackend(options: PdfBackendOptions = {}): DocumentBacke
       } catch (error) {
         void task?.destroy();
         host.release();
-        if (signal?.aborted) throw new ReadletError("network", "Load was aborted.", { cause: error });
+        if (signal?.aborted)
+          throw new ReadletError("network", "Load was aborted.", { cause: error });
         throw mapPdfError(error);
       } finally {
         signal?.removeEventListener("abort", onAbort);

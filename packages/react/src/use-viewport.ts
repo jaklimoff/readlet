@@ -1,4 +1,5 @@
 import {
+  createViewport,
   type PageInfo,
   type PageView,
   type ReadletDocument,
@@ -7,7 +8,6 @@ import {
   type Viewport,
   type ViewportOptions,
   type ZoomMode,
-  createViewport,
 } from "@readlet/core";
 import { type RefObject, useEffect, useLayoutEffect, useMemo, useState } from "react";
 

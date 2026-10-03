@@ -15,7 +15,8 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "dev": "pnpm --filter vite-react-example dev",
-    "fixtures": "node scripts/make-fixtures.mjs"
+    "fixtures": "node scripts/make-fixtures.mjs",
+    "size": "node scripts/size-check.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",

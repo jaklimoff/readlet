@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
-  PT_TO_CSS,
   columnLayout,
   effectiveDpr,
   mostVisiblePage,
+  PT_TO_CSS,
   pageAtY,
   resolveScale,
   rotateSize,
@@ -48,8 +48,12 @@ describe("layout", () => {
       { width: 300, height: 400 },
     ];
     expect(resolveScale(1.5, pages, { width: 1, height: 1 }, 0)).toBe(1.5);
-    expect(resolveScale("fit-width", pages, { width: 600 * PT_TO_CSS, height: 10 }, 1)).toBeCloseTo(1);
-    expect(resolveScale("fit-page", pages, { width: 1000, height: 400 * PT_TO_CSS }, 1)).toBeCloseTo(1);
+    expect(resolveScale("fit-width", pages, { width: 600 * PT_TO_CSS, height: 10 }, 1)).toBeCloseTo(
+      1,
+    );
+    expect(
+      resolveScale("fit-page", pages, { width: 1000, height: 400 * PT_TO_CSS }, 1),
+    ).toBeCloseTo(1);
     expect(resolveScale("fit-page", [], { width: 100, height: 100 }, 0)).toBe(10);
     expect(resolveScale(-1, pages, { width: 1, height: 1 }, 0)).toBe(1);
     expect(resolveScale(100, pages, { width: 1, height: 1 }, 0)).toBe(10);

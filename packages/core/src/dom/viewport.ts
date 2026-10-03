@@ -1,9 +1,9 @@
 import { Emitter, type Subscribable } from "../model/emitter";
 import {
   type ColumnLayout,
-  PT_TO_CSS,
   columnLayout,
   mostVisiblePage,
+  PT_TO_CSS,
   resolveScale,
   rotateSize,
   visiblePages,
@@ -177,8 +177,7 @@ export class Viewport implements Subscribable<ViewportEvents> {
 
     const settings = this.#settings();
     this.#views = doc.pages.map(
-      (info) =>
-        new PageView(doc, info, settings, (view, layer) => this.#onTextLayer(view, layer)),
+      (info) => new PageView(doc, info, settings, (view, layer) => this.#onTextLayer(view, layer)),
     );
     const frag = document.createDocumentFragment();
     for (const v of this.#views) frag.append(v.element);
@@ -376,11 +375,17 @@ export class Viewport implements Subscribable<ViewportEvents> {
     this.#relayout({ anchor: true });
   }
 
-  on<K extends keyof ViewportEvents>(type: K, listener: (payload: ViewportEvents[K]) => void): () => void {
+  on<K extends keyof ViewportEvents>(
+    type: K,
+    listener: (payload: ViewportEvents[K]) => void,
+  ): () => void {
     return this.#emitter.on(type, listener);
   }
 
-  off<K extends keyof ViewportEvents>(type: K, listener: (payload: ViewportEvents[K]) => void): void {
+  off<K extends keyof ViewportEvents>(
+    type: K,
+    listener: (payload: ViewportEvents[K]) => void,
+  ): void {
     this.#emitter.off(type, listener);
   }
 
@@ -465,7 +470,8 @@ export class Viewport implements Subscribable<ViewportEvents> {
   #onKey(e: KeyboardEvent): void {
     if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
     const target = e.target as HTMLElement | null;
-    if (target && target !== this.container && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
+    if (target && target !== this.container && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))
+      return;
     if (target?.isContentEditable) return;
     if (this.#opts.mode === "page") {
       const action = NAV_KEYS_PAGE_MODE[e.key];
@@ -535,7 +541,8 @@ export class Viewport implements Subscribable<ViewportEvents> {
       const h = this.#layout.sizes[anchorPage]?.height ?? 1;
       anchorFraction = (y - top) / h;
     }
-    const xFraction = c.scrollWidth > c.clientWidth ? (c.scrollLeft + c.clientWidth / 2) / c.scrollWidth : 0.5;
+    const xFraction =
+      c.scrollWidth > c.clientWidth ? (c.scrollLeft + c.clientWidth / 2) / c.scrollWidth : 0.5;
 
     const rotated = this.document.pages.map((p) => rotateSize(p, rotation));
     const free = {
@@ -629,7 +636,8 @@ export class Viewport implements Subscribable<ViewportEvents> {
     for (let i = 0; i < n; i++) {
       if (i >= keep.first && i <= keep.last) continue;
       const v = this.#views[i] as PageView;
-      if (v.state !== "idle" || (v.textLayer && !this.#pinned.has(i))) v.release(this.#pinned.has(i));
+      if (v.state !== "idle" || (v.textLayer && !this.#pinned.has(i)))
+        v.release(this.#pinned.has(i));
     }
 
     // Render visible pages first (closest to the middle first), then the buffer.

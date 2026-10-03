@@ -1,5 +1,5 @@
 import type { ReadletDocument, Viewport } from "@readlet/core";
-import { type ReactNode, createContext, useContext } from "react";
+import { createContext, type ReactNode, useContext } from "react";
 import { createPortal } from "react-dom";
 import type { PageHandle } from "./use-viewport";
 

@@ -36,8 +36,8 @@ test.describe("selection acceptance (brief)", () => {
       const scroller = el.closest("[data-readlet-status]") as HTMLElement;
       scroller.scrollTop = el.offsetTop - scroller.clientHeight / 2;
     });
-    await page.waitForSelector('.rl-text-layer[data-page-index="2"] span');
-    await page.waitForSelector('.rl-text-layer[data-page-index="3"] span');
+    await page.locator('.rl-text-layer[data-page-index="2"] span').first().waitFor();
+    await page.locator('.rl-text-layer[data-page-index="3"] span').first().waitFor();
     const from = await textPoint(page, 2, "archivist", "start");
     const to = await textPoint(page, 3, "harbour", "end");
     await drag(page, from, to);
@@ -105,7 +105,10 @@ test("setRange on pages that are not rendered does not throw", async ({ page }) 
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.evaluate(() =>
-    window.readlet?.handle?.selection?.setRange({ start: { page: 0, offset: 0 }, end: { page: 300, offset: 5 } }),
+    window.readlet?.handle?.selection?.setRange({
+      start: { page: 0, offset: 0 },
+      end: { page: 300, offset: 5 },
+    }),
   );
   const range = await currentRange(page);
   expect(range).toEqual({ start: { page: 0, offset: 0 }, end: { page: 300, offset: 5 } });

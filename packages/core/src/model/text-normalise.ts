@@ -76,13 +76,13 @@ export interface NormalisedPageText {
 }
 
 const LIGATURES: Record<string, string> = {
-  "ﬀ": "ff",
-  "ﬁ": "fi",
-  "ﬂ": "fl",
-  "ﬃ": "ffi",
-  "ﬄ": "ffl",
-  "ﬅ": "st",
-  "ﬆ": "st",
+  ﬀ: "ff",
+  ﬁ: "fi",
+  ﬂ: "fl",
+  ﬃ: "ffi",
+  ﬄ: "ffl",
+  ﬅ: "st",
+  ﬆ: "st",
 };
 
 const SPACE_LIKE = /[\t\n\r ]/g;

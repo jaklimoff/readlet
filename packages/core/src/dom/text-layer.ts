@@ -49,8 +49,13 @@ export class TextLayer {
     const { items, normalised } = model;
     const seps = normalised.separators;
     let sepIndex = 0;
-    let lastBox: { left: number; top: number; fontHeight: number; angle: number; family: string } | null =
-      null;
+    let lastBox: {
+      left: number;
+      top: number;
+      fontHeight: number;
+      angle: number;
+      family: string;
+    } | null = null;
 
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
@@ -58,7 +63,8 @@ export class TextLayer {
       if (!item || !n || n.text.length === 0) continue;
       while (sepIndex < seps.length && (seps[sepIndex]?.offset ?? 0) < n.start) {
         const sep = seps[sepIndex++];
-        if (sep && lastBox) fragment.append(this.#separator(sep.offset, sep.char, lastBox, pageWidth, pageHeight));
+        if (sep && lastBox)
+          fragment.append(this.#separator(sep.offset, sep.char, lastBox, pageWidth, pageHeight));
       }
       const g = itemGeometry(item);
       const ascent = fallbackAscent(item.fontFamily, item.ascent);
@@ -161,7 +167,10 @@ export class TextLayer {
    * Finds the DOM boundary point for a page string offset. `bias` decides which node wins at a
    * node boundary: `"forward"` for range starts, `"backward"` for range ends.
    */
-  boundaryForOffset(offset: number, bias: "forward" | "backward"): { node: Text; offset: number } | null {
+  boundaryForOffset(
+    offset: number,
+    bias: "forward" | "backward",
+  ): { node: Text; offset: number } | null {
     const entries = this.#entries;
     if (entries.length === 0) return null;
     // Last entry with entry.offset <= offset.
@@ -186,7 +195,8 @@ export class TextLayer {
     if (local < e.length) return { node: e.node, offset: local };
     if (local === e.length) {
       const next = entries[idx + 1];
-      if (bias === "forward" && next && next.offset === offset) return { node: next.node, offset: 0 };
+      if (bias === "forward" && next && next.offset === offset)
+        return { node: next.node, offset: 0 };
       return { node: e.node, offset: e.length };
     }
     // The offset falls in a gap (an empty item). Use the neighbour in the bias direction.

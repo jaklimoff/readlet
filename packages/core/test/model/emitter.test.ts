@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { Emitter } from "../../src/model/emitter";
-import { ReadletError, isReadletError, toReadletError } from "../../src/model/errors";
+import { isReadletError, ReadletError, toReadletError } from "../../src/model/errors";
 
 describe("Emitter", () => {
   it("emits, unsubscribes and isolates listener errors", () => {

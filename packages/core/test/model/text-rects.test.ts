@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { itemGeometry, itemSliceBox } from "../../src/model/text-geometry";
 import { normalisePageText } from "../../src/model/text-normalise";
-import { pageRangeRects, rangeToRects, sliceFractions } from "../../src/model/text-rects";
 import { makeRange } from "../../src/model/text-range";
+import { pageRangeRects, rangeToRects, sliceFractions } from "../../src/model/text-rects";
 import { hItem, uniform } from "./helpers";
 
 const p = (page: number, offset: number) => ({ page, offset });
@@ -25,7 +25,9 @@ describe("itemGeometry", () => {
     expect(box.height).toBeCloseTo(10);
   });
   it("uses the height for vertical text and a default ascent", () => {
-    const g = itemGeometry(hItem("ab", 0, 0, 10, { vertical: true, height: 33, ascent: Number.NaN }));
+    const g = itemGeometry(
+      hItem("ab", 0, 0, 10, { vertical: true, height: 33, ascent: Number.NaN }),
+    );
     expect(g.length).toBe(33);
     expect(g.angle).toBeCloseTo(Math.PI / 2);
   });
@@ -72,7 +74,11 @@ describe("pageRangeRects", () => {
     expect(pageRangeRects(makeRange(p(0, 0), p(0, 5)), 0, m, uniform)).toHaveLength(2);
   });
   it("covers several pages and skips unknown ones", () => {
-    const rects = rangeToRects(makeRange(p(0, 18), p(2, 5)), (i) => (i === 1 ? undefined : model), uniform);
+    const rects = rangeToRects(
+      makeRange(p(0, 18), p(2, 5)),
+      (i) => (i === 1 ? undefined : model),
+      uniform,
+    );
     expect(rects.map((r) => r.page)).toEqual([0, 2]);
   });
 });

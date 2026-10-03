@@ -1,10 +1,10 @@
 import {
+  createSelectionManager,
   type PageRect,
   type SelectionManager,
   type SelectionManagerOptions,
   type TextRange,
   type Viewport,
-  createSelectionManager,
 } from "@readlet/core";
 import { useEffect, useMemo, useState } from "react";
 

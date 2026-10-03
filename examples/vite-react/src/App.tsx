@@ -1,6 +1,12 @@
-import { type OutlineItem, type Rotation, type TextRange, isTextRange } from "@readlet/core";
+import { isTextRange, type OutlineItem, type Rotation, type TextRange } from "@readlet/core";
 import { createPdfBackend } from "@readlet/pdf";
-import { type Highlight, Viewer, type ViewerHandle, type ViewMode, type ZoomMode } from "@readlet/react";
+import {
+  type Highlight,
+  Viewer,
+  type ViewerHandle,
+  type ViewMode,
+  type ZoomMode,
+} from "@readlet/react";
 import { useEffect, useRef, useState } from "react";
 
 // Create the backend once, at module level.
@@ -52,7 +58,15 @@ export function App() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <header style={{ display: "flex", flexWrap: "wrap", gap: 8, padding: 8, borderBottom: "1px solid #ccc" }}>
+      <header
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 8,
+          padding: 8,
+          borderBottom: "1px solid #ccc",
+        }}
+      >
         <select
           aria-label="Fixture"
           value={typeof src === "string" ? src : ""}
@@ -74,7 +88,11 @@ export function App() {
             if (file) setSrc(file);
           }}
         />
-        <select aria-label="Mode" value={mode} onChange={(e) => setMode(e.target.value as ViewMode)}>
+        <select
+          aria-label="Mode"
+          value={mode}
+          onChange={(e) => setMode(e.target.value as ViewMode)}
+        >
           <option value="scroll">scroll</option>
           <option value="page">page</option>
         </select>
@@ -116,10 +134,18 @@ export function App() {
         <button type="button" onClick={() => ref.current?.viewport?.nextPage()}>
           Next
         </button>
-        <button type="button" disabled={!range} onClick={() => range && setHighlights((h) => [...h, { range }])}>
+        <button
+          type="button"
+          disabled={!range}
+          onClick={() => range && setHighlights((h) => [...h, { range }])}
+        >
           Highlight selection
         </button>
-        <button type="button" disabled={!range} onClick={() => localStorage.setItem("readlet:range", JSON.stringify(range))}>
+        <button
+          type="button"
+          disabled={!range}
+          onClick={() => localStorage.setItem("readlet:range", JSON.stringify(range))}
+        >
           Save range
         </button>
         <button
@@ -134,7 +160,10 @@ export function App() {
         <span data-testid="status">{status}</span>
       </header>
       <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
-        <nav aria-label="Outline" style={{ width: 200, overflow: "auto", borderRight: "1px solid #ccc", padding: 8 }}>
+        <nav
+          aria-label="Outline"
+          style={{ width: 200, overflow: "auto", borderRight: "1px solid #ccc", padding: 8 }}
+        >
           <strong>Outline</strong>
           <OutlineList items={outline} onPick={(i) => ref.current?.goToPage(i)} />
         </nav>
@@ -186,8 +215,8 @@ function OutlineList({ items, onPick }: { items: OutlineItem[]; onPick: (page: n
   if (items.length === 0) return null;
   return (
     <ul style={{ paddingLeft: 16 }}>
-      {items.map((item, i) => (
-        <li key={`${item.title}-${i}`}>
+      {items.map((item) => (
+        <li key={`${item.title}-${item.pageIndex}`}>
           {item.pageIndex !== null ? (
             <button type="button" onClick={() => onPick(item.pageIndex as number)}>
               {item.title}

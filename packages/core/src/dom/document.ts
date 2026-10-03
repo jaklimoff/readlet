@@ -9,8 +9,15 @@ import { Emitter, type Subscribable } from "../model/emitter";
 import { ReadletError, toReadletError } from "../model/errors";
 import { normalisePageText } from "../model/text-normalise";
 import { rangeToText as modelRangeToText } from "../model/text-range";
-import { type PageTextModel, rangeToRects as modelRangeToRects } from "../model/text-rects";
-import type { DocumentSource, OutlineItem, PageInfo, PageLink, PageRect, TextRange } from "../model/types";
+import { rangeToRects as modelRangeToRects, type PageTextModel } from "../model/text-rects";
+import type {
+  DocumentSource,
+  OutlineItem,
+  PageInfo,
+  PageLink,
+  PageRect,
+  TextRange,
+} from "../model/types";
 import { canvasMeasurer } from "./measure";
 
 /**
@@ -240,11 +247,17 @@ export class ReadletDocument implements Subscribable<DocumentEvents> {
     return page.getLinks();
   }
 
-  on<K extends keyof DocumentEvents>(type: K, listener: (payload: DocumentEvents[K]) => void): () => void {
+  on<K extends keyof DocumentEvents>(
+    type: K,
+    listener: (payload: DocumentEvents[K]) => void,
+  ): () => void {
     return this.#emitter.on(type, listener);
   }
 
-  off<K extends keyof DocumentEvents>(type: K, listener: (payload: DocumentEvents[K]) => void): void {
+  off<K extends keyof DocumentEvents>(
+    type: K,
+    listener: (payload: DocumentEvents[K]) => void,
+  ): void {
     this.#emitter.off(type, listener);
   }
 
