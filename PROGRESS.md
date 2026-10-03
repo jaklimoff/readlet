@@ -23,6 +23,21 @@ CI is green on GitHub.
 | Scroll p95 frame, 1,000 pages             | under 50 ms (asserted)                  |
 | Bundle gz: core / react / pdf             | 17.9 / 3.2 / 5.4 KB (budget 60 / 10 KB) |
 
+Speed (`pnpm bench`, Chromium on an Apple M-class laptop; files from
+`scripts/make-bench-fixtures.mjs`, 24 pages each; "mobile" = CPU ×4 and Fast 4G: 9 Mbit/s,
+150 ms round trip). Times are from `open(src)` to the first canvas, and from `goToPage` to a page
+with canvas and text layer (median of 7 jumps).
+
+| File (size)                              | Desktop: first page / jump | Mobile, ranges: first page / jump | Mobile, whole file: first page / jump |
+| ---------------------------------------- | -------------------------- | --------------------------------- | ------------------------------------- |
+| images: 150 dpi JPEG per page (9.3 MB)   | 87 / 83 ms                 | 1.3 s / 1.3 s                     | 8.9 s / 0.09 s                        |
+| vector: ~6,000 curves per page (2.6 MB)  | 83 / 130 ms                | 0.9 s / 0.9 s                     | 3.1 s / 0.5 s                         |
+| text: ~7,000 glyphs per page (0.2 MB)    | 92 / 93 ms                 | 0.8 s / 0.35 s                    | 0.8 s / 0.35 s                        |
+
+Ranges show the first page of a large file 3–7× sooner on a phone network; each jump to a far
+page then costs a few round trips. Normal scrolling hides this, because the render buffer loads
+the next pages early. Use `prefetch: true` when users jump around a lot in files of a few MB.
+
 ## Known issues and open points
 
 - With the pointer in the viewer margin left or right of a page (outside the page box) on the
@@ -39,8 +54,11 @@ CI is green on GitHub.
   (the profile preference has no effect), so no change was made without a test.
 - React 18 is a declared peer but only React 19 is tested.
 - `goToPage(index, { top })` ignores `top` when the user rotation is 90° or 270°.
-- Time to first page and render time per page are not measured with a real, image-heavy PDF
-  yet. The range test reports a time to first page, but on a local server.
+- On the slow-CPU profile, the vector file gives main-thread tasks of up to ~160 ms (×4, so
+  ~40 ms at full speed). pdf.js draws on the main thread; it yields every 15 ms, but one drawing
+  operation can take longer. Not Readlet code; rendering in a worker (OffscreenCanvas) could fix
+  it later.
+- The benchmark files are generated, not real-world PDFs.
 - No React unit tests yet; React is covered by the browser tests through the example app.
 - Vertical (`ttb`) text has no fixture yet.
 
@@ -125,6 +143,11 @@ CI is green on GitHub.
       cannot emulate the OS selection UI).
 
 ## Log
+
+- 2026-10-03 — Speed benchmark (`pnpm bench`, CI job `bench` with a JSON artifact): generated
+  image, vector and text PDFs; desktop and slow-phone profiles (CPU and network emulation);
+  whole-file against range loading. The range test server no longer slows full responses down
+  (that was only needed while pdf.js started with a full request).
 
 - 2026-10-03 — Range loader: Readlet requests the first chunk itself and feeds pdf.js through a
   `PDFDataRangeTransport`, so no request for the whole file starts (pdf.js began with one and
