@@ -15,12 +15,14 @@ import {
 } from "@readlet/core";
 import type {
   PageViewport,
+  PDFDataRangeTransport,
   PDFDocumentLoadingTask,
   PDFDocumentProxy,
   PDFPageProxy,
   PDFWorker as PDFWorkerType,
 } from "pdfjs-dist";
 import type { TextItem as PdfTextItem, TextContent } from "pdfjs-dist/types/src/display/api";
+import { type FetchOptions, probe, RangeLoader } from "./range-loader";
 
 type PdfJs = typeof import("pdfjs-dist");
 
@@ -235,6 +237,20 @@ async function sourceToParams(
   return { data };
 }
 
+/** Runs a pdf.js operation; with range loading it rejects when a needed range fails. */
+type Guard = <T>(operation: () => Promise<T>) => Promise<T>;
+const unguarded: Guard = (operation) => operation();
+
+/** `true` for URLs that HTTP Range requests can reach (not `blob:` or `data:`). */
+function isHttpUrl(url: string): boolean {
+  try {
+    const base = typeof location === "undefined" ? undefined : location.href;
+    return /^https?:$/.test(new URL(url, base).protocol);
+  } catch {
+    return false;
+  }
+}
+
 interface DestTarget {
   pageIndex: number | null;
   top: number | null;
@@ -249,11 +265,13 @@ class PdfPage implements BackendPage {
   #doc: PdfDocument;
   #pdfjs: PdfJs;
   #baseViewport: PageViewport;
+  #guard: Guard;
 
-  constructor(page: PDFPageProxy, doc: PdfDocument, pdfjs: PdfJs) {
+  constructor(page: PDFPageProxy, doc: PdfDocument, pdfjs: PdfJs, guard: Guard) {
     this.#page = page;
     this.#doc = doc;
     this.#pdfjs = pdfjs;
+    this.#guard = guard;
     this.index = page.pageNumber - 1;
     this.#baseViewport = page.getViewport({ scale: 1 });
     this.width = this.#baseViewport.width;
@@ -277,8 +295,9 @@ class PdfPage implements BackendPage {
     const onAbort = () => task.cancel();
     signal.addEventListener("abort", onAbort, { once: true });
     try {
-      await task.promise;
+      await this.#guard(() => task.promise);
     } catch (error) {
+      task.cancel();
       throw mapPdfError(error);
     } finally {
       signal.removeEventListener("abort", onAbort);
@@ -289,7 +308,7 @@ class PdfPage implements BackendPage {
     let content: TextContent;
     try {
       // Raw strings: Readlet applies its own normalisation (decision 0001.3).
-      content = await this.#page.getTextContent({ disableNormalization: true });
+      content = await this.#guard(() => this.#page.getTextContent({ disableNormalization: true }));
     } catch (error) {
       throw mapPdfError(error);
     }
@@ -299,7 +318,7 @@ class PdfPage implements BackendPage {
   async getLinks(): Promise<PageLink[]> {
     let annotations: Array<Record<string, unknown>>;
     try {
-      annotations = await this.#page.getAnnotations({ intent: "display" });
+      annotations = await this.#guard(() => this.#page.getAnnotations({ intent: "display" }));
     } catch (error) {
       throw mapPdfError(error);
     }
@@ -344,6 +363,7 @@ class PdfDocument implements BackendDocument {
   #task: PDFDocumentLoadingTask;
   #pdfjs: PdfJs;
   #release: () => void;
+  #guard: Guard;
   #pages = new Map<number, Promise<PdfPage>>();
   #destroyed = false;
 
@@ -352,11 +372,13 @@ class PdfDocument implements BackendDocument {
     task: PDFDocumentLoadingTask,
     pdfjs: PdfJs,
     release: () => void,
+    guard: Guard,
   ) {
     this.#doc = doc;
     this.#task = task;
     this.#pdfjs = pdfjs;
     this.#release = release;
+    this.#guard = guard;
     this.pageCount = doc.numPages;
   }
 
@@ -365,8 +387,8 @@ class PdfDocument implements BackendDocument {
       return Promise.reject(new ReadletError("destroyed", "Document was destroyed."));
     let page = this.#pages.get(index);
     if (!page) {
-      page = this.#doc.getPage(index + 1).then(
-        (p) => new PdfPage(p, this, this.#pdfjs),
+      page = this.#guard(() => this.#doc.getPage(index + 1)).then(
+        (p) => new PdfPage(p, this, this.#pdfjs, this.#guard),
         (error) => {
           this.#pages.delete(index);
           throw mapPdfError(error);
@@ -380,7 +402,8 @@ class PdfDocument implements BackendDocument {
   async resolveDest(dest: unknown): Promise<DestTarget> {
     try {
       let explicit: unknown = dest;
-      if (typeof dest === "string") explicit = await this.#doc.getDestination(dest);
+      if (typeof dest === "string")
+        explicit = await this.#guard(() => this.#doc.getDestination(dest));
       if (!Array.isArray(explicit) || explicit.length === 0) return { pageIndex: null, top: null };
       const [ref, kind, ...args] = explicit as [
         unknown,
@@ -390,7 +413,7 @@ class PdfDocument implements BackendDocument {
       let pageIndex: number;
       if (Number.isInteger(ref)) pageIndex = ref as number;
       else if (ref && typeof ref === "object")
-        pageIndex = await this.#doc.getPageIndex(ref as never);
+        pageIndex = await this.#guard(() => this.#doc.getPageIndex(ref as never));
       else return { pageIndex: null, top: null };
       if (pageIndex < 0 || pageIndex >= this.pageCount) return { pageIndex: null, top: null };
 
@@ -420,7 +443,7 @@ class PdfDocument implements BackendDocument {
   async getOutline(): Promise<OutlineItem[]> {
     let raw: Awaited<ReturnType<PDFDocumentProxy["getOutline"]>>;
     try {
-      raw = await this.#doc.getOutline();
+      raw = await this.#guard(() => this.#doc.getOutline());
     } catch (error) {
       throw mapPdfError(error);
     }
@@ -476,8 +499,46 @@ export function createPdfBackend(options: PdfBackendOptions = {}): DocumentBacke
       const { onProgress, signal } = loadOptions;
       if (signal?.aborted) throw new ReadletError("network", "Load was aborted.");
       const pdfjs = await loadPdfJs();
-      const params = await sourceToParams(source, onProgress);
-      const worker = await host.acquire(pdfjs);
+      let params: { url: string } | { data: Uint8Array } | { range: PDFDataRangeTransport } =
+        await sourceToParams(source, onProgress);
+      let loader: RangeLoader | null = null;
+      const fetchOptions: FetchOptions = {
+        headers: options.httpHeaders ?? {},
+        credentials: options.withCredentials ? "include" : "same-origin",
+      };
+      const chunkSize = options.rangeChunkSize ?? 65536;
+      // On-demand range loading: one Range request for the first chunk (at the same time as the
+      // worker starts), then pdf.js asks for the ranges it needs. pdf.js alone would start with
+      // a request for the whole file.
+      const probing =
+        "url" in params &&
+        options.rangeRequests !== false &&
+        options.prefetch !== true &&
+        isHttpUrl(params.url)
+          ? probe(params.url, chunkSize, fetchOptions, signal, (loaded, total) =>
+              onProgress?.({ loaded, total }),
+            )
+          : null;
+      let worker: PDFWorkerType;
+      try {
+        [worker] = await Promise.all([host.acquire(pdfjs), probing]);
+      } catch (error) {
+        // acquire() undoes its own count when it fails; release only after a failed probe.
+        if (!(error instanceof ReadletError && error.code === "worker-failed")) host.release();
+        throw mapPdfError(error);
+      }
+      if (probing && "url" in params) {
+        const result = await probing;
+        if (result.kind === "range") {
+          loader = new RangeLoader(pdfjs, params.url, result, fetchOptions);
+          params = { range: loader.transport };
+        } else if (result.kind === "data") {
+          params = { data: result.data };
+        }
+      }
+      const guard: Guard = loader
+        ? (operation) => (loader as RangeLoader).guard(operation)
+        : unguarded;
       const assets = (
         options.assetsUrl ?? `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}`
       ).replace(/\/+$/, "");
@@ -508,8 +569,9 @@ export function createPdfBackend(options: PdfBackendOptions = {}): DocumentBacke
             onProgress({ loaded, total: total && total > 0 ? total : null });
         }
         signal?.addEventListener("abort", onAbort, { once: true });
-        const doc = await task.promise;
-        return new PdfDocument(doc, task, pdfjs, () => host.release());
+        const loading = task;
+        const doc = await guard(() => loading.promise);
+        return new PdfDocument(doc, task, pdfjs, () => host.release(), guard);
       } catch (error) {
         void task?.destroy();
         host.release();

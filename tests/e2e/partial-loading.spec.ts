@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { type APIRequestContext, expect, type Page, test } from "@playwright/test";
 import manifest from "../../fixtures/manifest.json" with { type: "json" };
 
 // The range server (scripts/range-server.mjs) runs on another origin with S3-like CORS headers.
@@ -8,52 +8,81 @@ interface RangeStats {
   requests: number;
   bytes: number;
   ranges: number;
+  /** Range requests that the server failed on purpose (`fail=n`). */
+  failed: number;
   /** Each distinct range counted once: React StrictMode loads the document twice in dev. */
   uniqueBytes: number;
-  /** `uniqueBytes` without the first full request, which pdf.js cancels after the headers. */
-  rangeBytes: number;
+  log: Array<{ range: string; sent: number }>;
 }
 
 function token(): string {
   return Math.random().toString(36).slice(2);
 }
 
-test("page 500 of 1,000 from a range server downloads only a small part of the file", async ({
-  page,
-  request,
-}, testInfo) => {
+/** Opens large-1000.pdf from the range server at page 500; `query` adds server options. */
+async function openFromRangeServer(page: Page, query = "") {
   const t = token();
-  const url = `${RANGE_ORIGIN}/large-1000.pdf?t=${t}`;
-  const started = Date.now();
+  const url = `${RANGE_ORIGIN}/large-1000.pdf?t=${t}${query}`;
   await page.goto(`/?file=${encodeURIComponent(url)}&page=499&chunk=8192`);
+  return {
+    stats: async (request: APIRequestContext) =>
+      (await (await request.get(`${RANGE_ORIGIN}/__stats?t=${t}`)).json()) as RangeStats,
+  };
+}
+
+async function waitForPage500(page: Page) {
   await expect(page.getByTestId("status")).toHaveText("ready");
   await page
     .locator('.rl-page[data-page-index="499"][data-rendered] .rl-text-layer span')
     .first()
     .waitFor();
+}
+
+test("page 500 of 1,000 from a range server downloads only a small part of the file", async ({
+  page,
+  request,
+}, testInfo) => {
+  const started = Date.now();
+  const server = await openFromRangeServer(page);
+  await waitForPage500(page);
   const firstPageMs = Date.now() - started;
   expect(await page.evaluate(() => window.readlet?.handle?.viewport?.currentPage)).toBe(499);
   const text = await page.evaluate(() => window.readlet?.handle?.document?.getPageText(499));
   expect(text).toContain("This is page 500 of 1000.");
 
-  const stats = (await (await request.get(`${RANGE_ORIGIN}/__stats?t=${t}`)).json()) as RangeStats;
+  const stats = await server.stats(request);
   const size = manifest.files["large-1000.pdf"].bytes;
   testInfo.annotations.push({
     type: "partial-load",
-    description: `${stats.rangeBytes} B in ranges, ${stats.uniqueBytes} of ${size} bytes (${Math.round((stats.uniqueBytes / size) * 100)}%), ${stats.requests} requests, first page in ${firstPageMs} ms`,
+    description: `${stats.uniqueBytes} of ${size} bytes (${Math.round((stats.uniqueBytes / size) * 100)}%), ${stats.requests} requests, first page in ${firstPageMs} ms`,
   });
-  expect(stats.ranges).toBeGreaterThan(0);
+  // Every request is a range request: no request for the whole file, not even a cancelled one.
+  expect(stats.log.every((e) => e.range.startsWith("bytes="))).toBe(true);
   // In this small file the cross-reference data and object streams at the end are about 10% of
-  // the file. pdf.js cancels its first, full request when the headers arrive; how much of that
-  // body arrives first depends on timing (16 KB locally, most of this small file on a busy CI
-  // runner), so only the range bytes are checked. The annotation reports the total.
-  expect(stats.rangeBytes).toBeLessThan(size * 0.2);
+  // the file; page 500 itself needs a few KB.
+  expect(stats.uniqueBytes).toBeLessThan(size * 0.2);
 
   // Pages that were not near the visible area keep estimated sizes: nothing loaded them.
   const estimated = await page.evaluate(
     () => window.readlet?.handle?.document?.pages.filter((p) => p.estimated).length ?? 0,
   );
   expect(estimated).toBeGreaterThan(900);
+});
+
+test("a range request that fails is retried", async ({ page, request }) => {
+  const server = await openFromRangeServer(page, "&fail=2");
+  await waitForPage500(page);
+  expect((await server.stats(request)).failed).toBe(2);
+});
+
+test("a range that keeps failing gives a network error, not a hang", async ({ page }) => {
+  await openFromRangeServer(page, "&fail=100000");
+  await expect(page.getByTestId("status")).toHaveText("error:network", { timeout: 15_000 });
+});
+
+test("a server that hides Content-Range from CORS still works (whole file)", async ({ page }) => {
+  await openFromRangeServer(page, "&expose=0");
+  await waitForPage500(page);
 });
 
 test("lazy page sizes: pages with another size get their real size and keep the reading position", async ({

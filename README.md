@@ -89,6 +89,8 @@ bucket on another origin, set CORS rules like this:
 - Do not store the object with `Content-Encoding: gzip`. pdf.js cannot use ranges then.
 - Linearized PDFs ("Fast Web View") show the first page with the fewest requests.
 - If the server does not support ranges, the whole file downloads, and everything still works.
+- A failed range request is retried two times. If it still fails, the page shows nothing and the
+  document emits an `error` event with code `network`; the next render tries again.
 - `createPdfBackend({ prefetch: true })` also downloads the rest of the file in the background,
   as the pdf.js viewer does. `rangeRequests: false` turns range requests off.
 - Use `loadDocument(src, { pageSizes: "eager" })` if you need every page size before the first

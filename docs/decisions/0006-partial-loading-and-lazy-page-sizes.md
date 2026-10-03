@@ -34,6 +34,29 @@ behaviour (the rest of the file loads in the background), which is better for sm
 slow-latency link. When the server does not support ranges, pdf.js downloads the whole file, as
 before. These options affect URL sources only.
 
+### PDF backend: Readlet fetches the ranges itself
+
+pdf.js always starts a URL load with a request for the whole file, and cancels it when the
+headers show range support. Until the cancel, bytes of the whole file arrive: 16–80 KB on a fast
+local machine, most of a small file on a busy CI runner. So, for on-demand range loading of an
+`http(s)` URL, the backend does not give the URL to pdf.js:
+
+1. It requests the first chunk with `Range: bytes=0-<chunk-1>` (at the same time as the worker
+   starts).
+2. `206` with a total size in `Content-Range` → a `PDFDataRangeTransport` with that chunk as
+   initial data; Readlet answers each `requestDataRange` with one Range request.
+   `200` → the server sent the whole file; it is loaded from memory.
+   `206` without a readable total (CORS hides `Content-Range`) → the URL goes to pdf.js, which
+   then downloads the whole file because it cannot see `Accept-Ranges` either.
+   Other statuses → `ReadletError("network")`.
+3. pdf.js has no error path for a transport: it waits for a missing range forever. Readlet
+   retries a failed range after 250 ms and 1 s. When it still fails, every waiting pdf.js
+   operation (document load, `getPage`, render, text, links, outline) rejects with a `network`
+   error, and the next operation requests the failed ranges again. A viewer can so recover from
+   a short network outage by scrolling or re-rendering.
+
+`prefetch: true` and `rangeRequests: false` keep the plain pdf.js URL loading.
+
 ### Core: lazy page sizes
 
 - `PageInfo` gets `readonly estimated: boolean`. `true` means the size is a guess: the page has

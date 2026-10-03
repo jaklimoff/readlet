@@ -6,6 +6,8 @@
 //   node scripts/range-server.mjs [port]      (default 5174)
 //
 // GET /<file>?t=<token>   serves fixtures/<file>; statistics are kept per token
+//   &fail=<n>             the first n range requests that do not start at byte 0 answer 503
+//   &expose=0             do not expose Content-Range and Accept-Ranges to the page (CORS)
 // GET /__stats?t=<token>  returns { requests, bytes, ranges, uniqueBytes, rangeBytes, log } for that token;
 //                         uniqueBytes counts each distinct range once (React StrictMode loads a
 //                         document twice in development); rangeBytes is the same without
@@ -35,7 +37,7 @@ const CORS = {
 function statsFor(token) {
   let s = stats.get(token);
   if (!s) {
-    s = { requests: 0, bytes: 0, ranges: 0, log: [] };
+    s = { requests: 0, bytes: 0, ranges: 0, failed: 0, log: [] };
     stats.set(token, s);
   }
   return s;
@@ -56,7 +58,9 @@ const server = createServer((req, res) => {
     });
     const s = statsFor(token);
     const unique = new Map();
-    for (const e of s.log) unique.set(e.range, Math.max(unique.get(e.range) ?? 0, e.sent));
+    for (const e of s.log) {
+      if (e.sent >= 0) unique.set(e.range, Math.max(unique.get(e.range) ?? 0, e.sent));
+    }
     let uniqueBytes = 0;
     let rangeBytes = 0;
     for (const [range, sent] of unique) {
@@ -79,8 +83,12 @@ const server = createServer((req, res) => {
   s.requests++;
   const entry = { range: req.headers.range ?? "full", sent: 0 };
   s.log.push(entry);
+  const cors =
+    url.searchParams.get("expose") === "0"
+      ? { ...CORS, "Access-Control-Expose-Headers": "Content-Length" }
+      : CORS;
   const headers = {
-    ...CORS,
+    ...cors,
     "Accept-Ranges": "bytes",
     "Content-Type": "application/pdf",
     "Cache-Control": "no-store",
@@ -93,6 +101,12 @@ const server = createServer((req, res) => {
     end = range[2] ? Math.min(Number(range[2]), size - 1) : size - 1;
     if (start > end) {
       res.writeHead(416, { ...headers, "Content-Range": `bytes */${size}` }).end();
+      return;
+    }
+    if (start > 0 && s.failed < Number(url.searchParams.get("fail") ?? 0)) {
+      s.failed++;
+      entry.sent = -1;
+      res.writeHead(503, cors).end();
       return;
     }
     s.ranges++;
