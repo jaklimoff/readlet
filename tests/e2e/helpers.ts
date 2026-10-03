@@ -29,12 +29,20 @@ export async function textPoint(
         r.setStart(node, at);
         r.setEnd(node, at + 1);
         const rect = r.getBoundingClientRect();
-        return {
-          // Points just inside the edge character. Firefox snaps a drag end a little differently
-          // from its caret hit test, so the end point stays close to the edge.
-          x: edge === "start" ? rect.left + rect.width / 4 : rect.right - rect.width / 10,
-          y: rect.top + rect.height / 2,
-        };
+        const y = rect.top + rect.height / 2;
+        if (edge === "start") return { x: rect.left + rect.width / 4, y };
+        // Firefox snaps a drag end a little differently from its caret hit test, so a point just
+        // inside a narrow end character (such as ".") can snap before it. When a next character
+        // follows in the same span, aim a third of the way into it; that boundary is the nearest.
+        if (at + 2 <= node.length) {
+          r.setStart(node, at + 1);
+          r.setEnd(node, at + 2);
+          const next = r.getBoundingClientRect();
+          if (next.width > 0 && Math.abs(next.top - rect.top) < rect.height / 2) {
+            return { x: next.left + next.width / 3, y };
+          }
+        }
+        return { x: rect.right - rect.width / 10, y };
       }
       throw new Error(`"${text}" not found in one span on page ${pageIndex}`);
     },
