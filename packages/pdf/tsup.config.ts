@@ -21,12 +21,14 @@ export default defineConfig({
       // Supports Vite-style `?raw` imports so that src works in Vite and in tsup.
       name: "raw",
       setup(build) {
+        // Keep the bare specifier as the path: esbuild writes it in a comment in the output,
+        // and an absolute path would leak the build machine's directory layout.
         build.onResolve({ filter: /\?raw$/ }, (args) => ({
-          path: require.resolve(args.path.slice(0, -4)),
+          path: args.path.slice(0, -4),
           namespace: "raw",
         }));
         build.onLoad({ filter: /.*/, namespace: "raw" }, async (args) => ({
-          contents: await readFile(args.path, "utf8"),
+          contents: await readFile(require.resolve(args.path), "utf8"),
           loader: "text",
         }));
       },

@@ -28,6 +28,42 @@ test.describe("loading", () => {
     expect(counts).toEqual([5, 5, 5, 1]);
   });
 
+  test("reports load progress for URL and Blob sources", async ({ page }) => {
+    await openFixture(page, "single-column.pdf");
+    const result = await page.evaluate(async () => {
+      const { loadDocument } = await import("/@id/@readlet/core" as string);
+      const { createPdfBackend } = await import("/@id/@readlet/pdf" as string);
+      const backend = createPdfBackend();
+      const fromUrl: Array<{ loaded: number; total: number | null }> = [];
+      const doc = await loadDocument("/large-1000.pdf", {
+        backend,
+        onProgress: (p: never) => fromUrl.push(p),
+      });
+      await doc.destroy();
+      const blob = await (await fetch("/rotated.pdf")).blob();
+      const fromBlob: Array<{ loaded: number; total: number | null }> = [];
+      const doc2 = await loadDocument(blob, {
+        backend,
+        onProgress: (p: never) => fromBlob.push(p),
+      });
+      await doc2.destroy();
+      const fromBuffer: Array<{ loaded: number; total: number | null }> = [];
+      const doc3 = await loadDocument(await blob.arrayBuffer(), {
+        backend,
+        onProgress: (p: never) => fromBuffer.push(p),
+      });
+      await doc3.destroy();
+      return { fromUrl, fromBlob, fromBuffer, blobSize: blob.size };
+    });
+    expect(result.fromUrl.length).toBeGreaterThan(0);
+    const last = result.fromUrl.at(-1)!;
+    expect(last.loaded).toBeGreaterThan(0);
+    if (last.total !== null) expect(last.loaded).toBeLessThanOrEqual(last.total);
+    const complete = [{ loaded: result.blobSize, total: result.blobSize }];
+    expect(result.fromBlob).toEqual(complete);
+    expect(result.fromBuffer).toEqual(complete);
+  });
+
   test("a missing URL gives a typed network error", async ({ page }) => {
     await page.goto("/?file=does-not-exist.pdf");
     await expect(page.getByTestId("status")).toHaveText(/^error:(network|invalid-pdf)$/);

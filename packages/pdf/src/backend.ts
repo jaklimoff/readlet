@@ -196,21 +196,27 @@ class WorkerHost {
   }
 }
 
+/**
+ * Converts a source to pdf.js parameters. For bytes in memory (ArrayBuffer, Uint8Array, Blob) it
+ * reports one complete progress event; URL progress comes from pdf.js.
+ */
 async function sourceToParams(
   source: DocumentSource,
   onProgress: BackendLoadOptions["onProgress"],
 ): Promise<{ url: string } | { data: Uint8Array }> {
   if (typeof source === "string") return { url: source };
   if (source instanceof URL) return { url: source.href };
+  let data: Uint8Array;
   // pdf.js transfers the buffer to the worker; copy it so the caller's buffer stays usable.
-  if (source instanceof ArrayBuffer) return { data: new Uint8Array(source.slice(0)) };
-  if (source instanceof Uint8Array) return { data: source.slice() };
-  if (typeof Blob !== "undefined" && source instanceof Blob) {
-    const data = new Uint8Array(await source.arrayBuffer());
-    onProgress?.({ loaded: data.byteLength, total: data.byteLength });
-    return { data };
+  if (source instanceof ArrayBuffer) data = new Uint8Array(source.slice(0));
+  else if (source instanceof Uint8Array) data = source.slice();
+  else if (typeof Blob !== "undefined" && source instanceof Blob) {
+    data = new Uint8Array(await source.arrayBuffer());
+  } else {
+    throw new ReadletError("invalid-pdf", "Unsupported document source.");
   }
-  throw new ReadletError("invalid-pdf", "Unsupported document source.");
+  onProgress?.({ loaded: data.byteLength, total: data.byteLength });
+  return { data };
 }
 
 interface DestTarget {
@@ -474,7 +480,7 @@ export function createPdfBackend(options: PdfBackendOptions = {}): DocumentBacke
           iccUrl: `${assets}/iccs/`,
           enableXfa: false,
         });
-        if (onProgress) {
+        if (onProgress && "url" in params) {
           task.onProgress = ({ loaded, total }: { loaded: number; total?: number }) =>
             onProgress({ loaded, total: total && total > 0 ? total : null });
         }
