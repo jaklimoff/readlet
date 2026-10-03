@@ -136,7 +136,8 @@ the next pages early. Use `prefetch: true` when users jump around a lot in files
       Vite 8 + React 19 app: README quickstart as is, dev and production build, selection works,
       no console messages
 - [x] Trusted Publishing for the three packages (`jaklimoff/readlet`, `release.yml`, permission
-      "npm publish"; no dist-tag permission). Not yet proven by a CI release.
+      "npm publish"; no dist-tag permission). Proven by 0.1.1: CI published all three packages with
+      signed provenance, with no token.
 - [x] API review before the first publish (decision 0008): internals removed from the exports
       and stripped from the published types; `aborted` error code; `textload` event; core is a
       peer of the React package; React re-exports its types; consumer type check on the built
@@ -156,6 +157,10 @@ the next pages early. Use `prefetch: true` when users jump around a lot in files
       cannot emulate the OS selection UI).
 
 ## Log
+
+- 2026-10-03 — 0.1.1 (npm keywords) released from CI with Trusted Publishing and provenance.
+  Found and fixed: a release run while npm still processes a version got E409; the script now
+  skips such versions. GitHub actions updated to versions that run on Node 24.
 
 - 2026-10-03 — Released 0.1.0. The first `npm publish` failed (E403: the npm account had no 2FA);
   after 2FA was turned on it worked. npm processes new packages for about 3 minutes before they
